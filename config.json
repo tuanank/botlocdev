@@ -1,0 +1,95 @@
+{
+    "NOTIFICATION": true,
+    "notiGroup": true,
+    "language": "vi",
+    "DeveloperMode": true,
+    "autoCreateDB": true,
+    "allowInbox": true,
+    "commandDisabled": [
+        "autodown.js"
+    ],
+    "eventDisabled": [],
+    "FACEBOOK_ADMIN": "https://www.facebook.com/honghai1609207?mibextid=ZbWKwL",
+    "ZALO_ADMIN": "039xxx",
+    "ADMIN_NAME": "Hồng Hải",
+    "BOTNAME": "Mi Nơ ❤️",
+    "PREFIX": "-",
+    "ADMINBOT": [
+        "100046194132744",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "100070819382775"
+    ],
+    "NDH": [
+        "100046194132744"
+    ],
+    "DATABASE": {
+        "sqlite": {
+            "storage": "data.sqlite"
+        }
+    },
+    "APPSTATEPATH": "appstate.json",
+    "autoCleanCache": {
+        "Enable": true,
+        "CachePath": "./modules/commands/cache",
+        "AllowFileExtension": [
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".mp4",
+            ".mp3",
+            ".m4a",
+            ".ttf",
+            ".gif"
+        ]
+    },
+    "iconUnsend": {
+        "status": true,
+        "icon": "😠"
+    },
+    "FCAOption": {
+        "forceLogin": true,
+        "listenEvents": true,
+        "pauseLog": true,
+        "logLevel": "error",
+        "selfListen": true,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+    },
+    "version": "1.5.2",
+    "daily": {
+        "cooldownTime": 43200000,
+        "rewardCoin": 200
+    },
+    "sing": {
+        "YOUTUBE_API": "AIzaSyCXtsOpIMInU5TOWkz0b2xjqwbx0aLUKJw",
+        "SOUNDCLOUD_API": "M4TSyS6eV0AcMynXkA3qQASGcOFQTWub"
+    },
+    "work": {
+        "cooldownTime": 1200000
+    },
+    "log": {
+        "enable": true
+    },
+    "menu": {
+        "autoUnsend": {
+            "status": true,
+            "timeOut": 60
+        }
+    },
+    "loto": {
+        "maxPlayers": 10,
+        "getDelay": 8
+    },
+    "xidach": {
+        "maxPlayers": 5,
+        "normalWinBonus": 1,
+        "superWinBonus": 2,
+        "epicWinBonus": 4
+    }
+}

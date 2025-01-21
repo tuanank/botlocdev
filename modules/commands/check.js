@@ -1,379 +1,159 @@
 module.exports.config = {
-  name: "check",
-  version: "1.0.1",
-  hasPermssion: 0,
-  credits: "DungUwU && Nghĩa",
-  description: "Check tương tác ngày/tuần/toàn bộ",
-  commandCategory: "Box chat",
-  usages: "[all/week/day]",
-  cooldowns: 5,
-  images: [],
-  dependencies: {
-    "fs": " ",
-    "moment-timezone": " "
-  }
+    name: 'check',
+    version: '1.1.1',
+    hasPermssion: 0,
+    credits: 'DC-Nam',
+    description: 'Kiểm tra tương tác trong nhóm và lọc!',
+    commandCategory: 'Nhóm',
+    usages: 'day/week/all',
+    cooldowns: 3
 };
-
-const path = __dirname + '/checktt/';
-const moment = require('moment-timezone');
-
-module.exports.onLoad = () => {
-  const fs = require('fs');
-  if (!fs.existsSync(path) || !fs.statSync(path).isDirectory()) {
-    fs.mkdirSync(path, { recursive: true });
-  }
-setInterval(() => {
-    const today = moment.tz("Asia/Ho_Chi_Minh").day();
-    const checkttData = fs.readdirSync(path);
-    checkttData.forEach(file => {
-      try { var fileData = JSON.parse(fs.readFileSync(path + file)) } catch { return fs.unlinkSync(path+file) };
-      if (fileData.time != today) {
-        setTimeout(() => {
-          fileData = JSON.parse(fs.readFileSync(path + file));
-          if (fileData.time != today) {
-            fileData.time = today;
-            fs.writeFileSync(path + file, JSON.stringify(fileData, null, 4));
-          }
-        }, 60 * 1000);
-      }
-    })
-  }, 60 * 1000);
-}
-
-module.exports.handleEvent = async function({ api, event, Threads }) {
-  try{
-  if (!event.isGroup) return;
-  if (global.client.sending_top == true) return;
-  const fs = global.nodemodule['fs'];
-  const { threadID, senderID } = event;
-  const today = moment.tz("Asia/Ho_Chi_Minh").day();
-
-  if (!fs.existsSync(path + threadID + '.json')) {
-    var newObj = {
-      total: [],
-      week: [],
-      day: [],
-      time: today,
-      last: {
-        time: today,
-        day: [],
-        week: [],
-      },
-    };
-    fs.writeFileSync(path + threadID + '.json', JSON.stringify(newObj, null, 4));} else {
-      var newObj = JSON.parse(fs.readFileSync(path + threadID + '.json'));
-    }
-    if (true) {
-      const UserIDs = event.participantIDs || [];
-      if (UserIDs.length!=0)for (let user of UserIDs) {
-        if (!newObj.last)newObj.last = {
-          time: today,
-          day: [],
-          week: [],
+const {
+    readFileSync,
+    readdirSync,
+    writeFileSync,
+    existsSync,
+    mkdirSync,
+    createReadStream
+} = require('fs-extra');
+const axios = require('axios');
+const sortCompare = (k, k2) => (a, b) => (a[k][k2] > b[k][k2] ? 1: a[k][k2] < b[k][k2] ? -1: 0)*-1;
+const roof = n => +n != +Math.floor(n) ? +Math.floor(n) + 1: +n;
+const localeNum = n => ((+n).toLocaleString()).replace(/,/g, '.');
+const checkAdmin = (a, b) => global.data.threadInfo.get(a).adminIDs.some(i => i.id == b);
+const fullTime = a =>  new Date(a).toLocaleString();
+const textDWA = a => a == 'day' ? 'Hôm Nay': a == 'week' ? 'Tuần Này': a == 'all' ? 'tất cả': tue;
+const dirMain = __dirname + '/cache/count-JRT';
+const newUser = (a, b) => new Object({
+    userID: a, messenger: {
+        day: 0, week: 0, all: 0
+    }, timestamp: b
+});
+const convertTime =d=>`${d.getDate()}/${d.getMonth()}/${d.getFullYear()}`;
+module.exports.onLoad = function ({api}) {
+    global.botID = api.getCurrentUserID();
+    if (!existsSync(dirMain)) mkdirSync(dirMain);
+    if(!global.interval_checktt)global.interval_checktt = (()=>{
+        var date = new Date(Date.now()+25200000).getDay();
+    setInterval(function() {
+        const dateNow = new Date(Date.now()+25200000).getDay();
+        if (dateNow != date) {
+            date = dateNow;
+            const type = dateNow == 1 ? 'week': 'day';
+            var directory = readdirSync(dirMain);
+            directory = directory.filter(i => i.endsWith('.json'));
+            for (const file of directory) try{
+                const tid = file.replace('.json', '');
+                const pathJ = `${dirMain}/${file}`;
+               try{var data = JSON.parse(readFileSync(pathJ));}catch{var data = {user:[]}};
+              if(data.user.length == 0)continue;
+                data.user.sort(sortCompare('messenger', type));
+                const length = data.user.length < 1000 ? data.user.length: 1000;
+                var txt = `=== 『 Top ${length} Tương Tác ${type == 'day' ? 'hôm qua': 'tuần qua'} 』\n━━━━━━━━━━━━━━━\n`.toUpperCase();
+                for (var i = 0; i < length; i++) try{
+                    const {
+                        userID = 0,
+                        messenger = 0
+                    } = data.user[i] || {};
+                    txt += `[🏆] ➜ Top: ${i+1}\n[👤] ➜ Tên: ${global.data.userName.get(userID)}\n[💬] ➜ Tin Nhắn: ${messenger[type]}\n\n`;
+                }catch{};
+                data.user = (data.user||[]).map(i => {
+          if(!i.messenger)i.messenger = {};
+                    i.messenger[type] = 0;
+                    return i;
+                });
+                writeFileSync(pathJ, JSON.stringify(data, null, 4));
+                api.sendMessage(txt, tid);
+            }catch{};
         };
-        if (!newObj.last.week.find(item => item.id == user)) {
-          newObj.last.week.push({
-            id: user,
-            count: 0
-          });
-        }
-        if (!newObj.last.day.find(item => item.id == user)) {
-          newObj.last.day.push({
-            id: user,
-            count: 0
-          });
-        }
-        if (!newObj.total.find(item => item.id == user)) {
-          newObj.total.push({
-            id: user,
-            count: 0
-          });
-        }
-        if (!newObj.week.find(item => item.id == user)) {
-          newObj.week.push({
-            id: user,
-            count: 0
-          });
-        }
-        if (!newObj.day.find(item => item.id == user)) {
-          newObj.day.push({
-            id: user,
-            count: 0
-          });
-        }
-      }
-    };
-    fs.writeFileSync(path + threadID + '.json', JSON.stringify(newObj, null, 4));
-  
-  const threadData = JSON.parse(fs.readFileSync(path + threadID + '.json'));
-  if (threadData.time != today) {
-    global.client.sending_top = true;
-    setTimeout(() => global.client.sending_top = false, 5 * 60 * 1000);
-  }
-  const userData_week_index = threadData.week.findIndex(e => e.id == senderID);
-  const userData_day_index = threadData.day.findIndex(e => e.id == senderID);
-  const userData_total_index = threadData.total.findIndex(e => e.id == senderID);
-  if (userData_total_index == -1) {
-    threadData.total.push({
-      id: senderID,
-      count: 1,
-    });
-  } else threadData.total[userData_total_index].count++;
-  if (userData_week_index == -1) {
-    threadData.week.push({
-      id: senderID,
-      count: 1
-    });
-  } else threadData.week[userData_week_index].count++;
-  if (userData_day_index == -1) {
-    threadData.day.push({
-      id: senderID,
-      count: 1
-    });
-  } else threadData.day[userData_day_index].count++;
-  let p = event.participantIDs;
-    if (!!p && p.length > 0) {
-      p = p.map($=>$+'');
-      ['day','week','total'].forEach(t=>threadData[t] = threadData[t].filter($=>p.includes($.id+'')));
-    };
-  fs.writeFileSync(path + threadID + '.json', JSON.stringify(threadData, null, 4));
-  } catch(e){};
-}
-
-module.exports.run = async function({ api, event, args, Users, Threads }) {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const fs = global.nodemodule['fs'];
-  const { threadID, messageID, senderID, mentions } = event;
-  let path_data = path + threadID + '.json';
-  if (!fs.existsSync(path_data)) {
-    return api.sendMessage("⚠️ Chưa có dữ liệu", threadID);
-  }
-  const threadData = JSON.parse(fs.readFileSync(path_data));
-  const query = args[0] ? args[0].toLowerCase() : '';
-
-  if (query == 'box') {
-    let body_ = event.args[0].replace(exports.config.name, '')+'box info';
-    let args_ = body_.split(' ');
-    
-    arguments[0].args = args_.slice(1);
-    arguments[0].event.args = args_;
-    arguments[0].event.body = body_;
-    
-    return require('./box.js').run(...Object.values(arguments));
-  } else if (query == 'reset') {
-     let dataThread = (await Threads.getData(threadID)).threadInfo;
-    if (!dataThread.adminIDs.some(item => item.id == senderID)) return api.sendMessage('❎ Bạn không đủ quyền hạn để sử dụng', event.threadID, event.messageID);
-     fs.unlinkSync(path_data);
-     return api.sendMessage(`☑️ Đã xóa toàn bộ dữ liệu đếm tương tác của nhóm`, event.threadID);
-   } else if (query === 'ndfb') {
-    let body_ = event.args[0].replace(exports.config.name, '');
-let args_ = body_.split(' ');
-
-event.args = args_.slice(1);
-event.body = body_;
-    
-return require('./locmemdie.js').run(...Object.values(event));
-   } else if(query == 'lọc') {
-        let threadInfo = await api.getThreadInfo(threadID);
-        if(!threadInfo.adminIDs.some(e => e.id == senderID)) return api.sendMessage("❎ Bạn không có quyền sử dụng lệnh này", threadID);
-        if(!threadInfo.isGroup) return api.sendMessage("❎ Chỉ có thể sử dụng trong nhóm", threadID);
-        if(!threadInfo.adminIDs.some(e => e.id == api.getCurrentUserID())) return api.sendMessage("⚠️ Bot Cần Quyền Quản Trị Viên", threadID);
-        if(!args[1] || isNaN(args[1])) return api.sendMessage("Error", threadID);
-        let minCount = +args[1],
-            allUser = event.participantIDs;let id_rm = [];
-        for(let user of allUser) {
-            if(user == api.getCurrentUserID()) continue;
-            if(!threadData.total.some(e => e.id == user) || threadData.total.find(e => e.id == user).count <= minCount) {
-                await new Promise(resolve=>setTimeout(async () => {
-                    await api.removeUserFromGroup(user, threadID);
-                    id_rm.push(user);
-                    resolve(true);
-                }, 1000));
-            }
-        }
-  return api.sendMessage(`☑️ Đã xóa ${id_rm.length} thành viên ${minCount} tin nhắn\n\n${id_rm.map(($,i)=>`${i+1}. ${global.data.userName.get($)}`)}`, threadID);
-}
-
- ////////small code///////////////////////
-  var x = threadData.total.sort((a, b) => b.count - a.count);
-  var o = [];
-  for (i = 0; i < x.length; i++) {
-    o.push({
-      rank: i + 1,
-      id: x[i].id,
-      count: x[i].count
-    })
-  }
-  /////////////////////////////////////////////////////////////
-var header = '',
-    body = '',
-    footer = '',
-    msg = '',
-    count = 1,
-    storage = [],
-    data = 0;
-  if (query == 'all' || query == '-a') {
-    header = '[ Kiểm Tra Tin nhắn Tổng ]\n────────────────';
-    data = threadData.total;
-
-  } else if (query == 'week' || query == '-w') {
-    header = '[ Kiểm Tra Tin nhắn Tuần ]\n────────────────';
-    data = threadData.week;
-  } else if (query == 'day' || query == '-d') {
-    header = '[ Kiểm Tra Tin nhắn Ngày ]\n────────────────';
-    data = threadData.day;
-  } else {
-    data = threadData.total;
-  }
-  for (const item of data) {
-    const userName = await Users.getNameUser(item.id) || 'Facebook User';
-    const itemToPush = item;
-    itemToPush.name = userName;
-    storage.push(itemToPush);
-  };
-  let check = ['all', '-a', 'week', '-w', 'day', '-d'].some(e => e == query);
-  if (!check && Object.keys(mentions).length > 0) {
-  }
-  storage.sort((a, b) => {
-    if (a.count > b.count) {
-      return -1;
-    }
-    else if (a.count < b.count) {
-      return 1;
-    } else {
-      return a.name.localeCompare(b.name);
-    }
-  });
-if ((!check && Object.keys(mentions).length == 0) || (!check && Object.keys(mentions).length == 1) || (!check && event.type == 'message_reply')) {
-        const UID = event.messageReply ? event.messageReply.senderID : Object.keys(mentions)[0] ? Object.keys(mentions)[0] : senderID;
-      const uid = event.type == 'message_reply' ? event.messageReply.senderID: !!Object.keys(event.mentions)[0] ? Object.keys(event.mentions)[0]: !!args[0] ? args[0]: event.senderID;
-    const userRank = storage.findIndex(e => e.id == UID);
-    const userTotal = threadData.total.find(e => e.id == UID) ? threadData.total.find(e => e.id == UID).count : 0;
-    const userTotalWeek = threadData.week.find(e => e.id == UID) ? threadData.week.find(e => e.id == UID).count : 0;
-    const userRankWeek = threadData.week.sort((a, b) => b.count - a.count).findIndex(e => e.id == UID);
-    const userTotalDay = threadData.day.find(e => e.id == UID) ? threadData.day.find(e => e.id == UID).count : 0;
-    const userRankDay = threadData.week.sort((a, b) => b.count - a.count).findIndex(e => e.id == UID);
-    let count_day_last = threadData.last?.day?.find($=>$.id==UID)?.count||0;
-    let count_week_last = threadData.last?.week?.find($=>$.id==UID)?.count||0;
-    let interaction_rate_day = (userTotalDay/count_day_last)*100;
-    let interaction_rate_week = (userTotalWeek/count_week_last)*100;
-    const nameUID = storage[userRank].name || 'Facebook User';
-    let threadInfo = await api.getThreadInfo(event.threadID);
-    nameThread = threadInfo.threadName;
-    var permission;
-    if (global.config.ADMINBOT.includes(UID)) permission = `Admin Bot`;
-    else if
-      (global.config.NDH.includes(UID))
-      permission = `Người Hỗ Trợ`; else if (threadInfo.adminIDs.some(i => i .id == UID)) permission = `Quản Trị Viên`; else permission = `Thành Viên`;
-  const target = UID == senderID ? 'Bạn' : nameUID;
-
-const datatj = __dirname + '/data/timeJoin.json';
-const dataExists = fs.existsSync(datatj);
-const datathreadInfo = dataExists && JSON.parse(fs.readFileSync(datatj, 'utf8'))[UID + event.threadID];
-const userJoinDate = datathreadInfo && moment(`${datathreadInfo.ngay} ${datathreadInfo.gio}`, 'YYYY-MM-D HH:mm:ss').tz('Asia/Ho_Chi_Minh');
-const thu = userJoinDate && { Sunday: 'Chủ Nhật', Monday: 'Thứ Hai', Tuesday: 'Thứ Ba', Wednesday: 'Thứ Tư', Thursday: 'Thứ Năm', Friday: 'Thứ Sáu', Saturday: 'Thứ Bảy' }[userJoinDate.format('dddd')];
-const daysSinceJoin = userJoinDate && moment().tz('Asia/Ho_Chi_Minh').diff(userJoinDate, 'days');
-const msgtimejoin = dataExists ? userJoinDate ? daysSinceJoin < 1 ? `[📜] → Sẽ bắt đầu tính sau 1 ngày vào nhóm` : `[📜] → Đã tham gia được ${daysSinceJoin} ngày` : `[📜] → Không có dữ liệu thời gian tham gia` : `[📜] → Chưa có dữ liệu thời gian người dùng tham gia`;
-  
-    if (userRank == -1) {
-      return api.sendMessage(`⚠️ ${target} chưa có dữ liệu`, threadID);
-    }
-
-body += `[ ${nameThread} ]\n───────────────────\n[👤] →⁠ Tên: ${nameUID}\n[🔐] →⁠ Chức Vụ: ${permission}\n[📝] → Profile: https://www.facebook.com/profile.php?id=${UID}\n[⏰] → Thời gian tham gia nhóm: ${datathreadInfo ? datathreadInfo.gio + ' - ' + datathreadInfo.burh : ''} (${thu})\n${msgtimejoin}\n───────────────────\n[💬] → Tin Nhắn Trong Ngày: ${userTotalDay}\n[🎖️] → Hạng Trong Ngày: ${userRankDay + 1}\n───────────────────\n[💬] → Tin Nhắn Trong Tuần: ${userTotalWeek}\n[🎖️] → Hạng Trong Tuần: ${userRankWeek + 1}\n───────────────────\n[💬] → Tổng Tin Nhắn: ${userTotal}\n[🏆] → Xếp Hạng Tổng: ${userRank + 1}\n\n📌 Thả cảm xúc "❤️" tin nhắn này để xem tổng tin nhắn của toàn bộ thành viên trong nhóm.
-`.replace(/^ +/gm, '');
-    console.log(storage.reduce((a, b) => a + b.count, 0))
-  } else {
-    console.log((storage.filter($ => $.id == senderID))[0].count)
-    body = storage.map(item => {
-      let count_day_last = threadData.last?.day?.find($=>$.id=item.id)?.count||0;
-    let count_week_last = threadData.last?.week?.find($=>$.id==item.id)?.count||0;
-    let interaction_rate_day = (item.count/count_day_last)*100;
-    let interaction_rate_week = (item.count/count_week_last)*100;
-    let rate = /^day|-d$/.test(query)?interaction_rate_day:/^week|-w$/.test(query)?interaction_rate_week:false;
-      return `${count++}. ${item.name} với ${item.count} tin nhắn ${rate?`(${rate.toFixed(1)}%)`:''}`;
-    }).join('\n');
-    const userTotalWeek = threadData.week.find(e => e.id == senderID) ? threadData.week.find(e => e.id == senderID).count : 0;
-    const userTotalDay = threadData.day.find(e => e.id == senderID) ? threadData.day.find(e => e.id == senderID).count : 0;
-    const tlttd = (userTotalDay / (storage.reduce((a, b) => a + b.count, 0))) * 100;
-    const tlttt = (userTotalWeek / (storage.reduce((a, b) => a + b.count, 0))) * 100
-    const tltt = (((storage.filter($ => $.id == senderID))[0].count) / (storage.reduce((a, b) => a + b.count, 0))) * 100
-    footer = `\n[💬] → Tổng Tin Nhắn: ${storage.reduce((a, b) => a + b.count, 0)}`;
-  }
-
-  msg = `${header}\n${body}\n${footer}`;
-  return api.sendMessage(msg + '\n' + `${query == 'all' || query == '-a' ? `[🏆] → Bạn hiện đang đứng ở hạng: ${(o.filter(id => id.id == senderID))[0]['rank']}\n───────────────────\n📝 Hướng dẫn lọc thành viên:\n👉 Reply (phản hồi) tin nhắn này theo số thứ tự để xóa thành viên ra khỏi nhóm\n ${global.config.PREFIX}check locmem + số tin nhắn để xóa thành viên ra khỏi nhóm\n ${global.config.PREFIX}check reset -> reset lại toàn bộ dữ liệu tin nhắn\n${global.config.PREFIX}check ndfb -> kick người dùng bị bay acc khỏi nhóm\n${global.config.PREFIX}check box -> xem thông tin nhóm` : ""}`, threadID, (error, info) => {
-
-    if (error) return console.log(error)
-    if (query == 'all' || query == '-a') {
-      global.client.handleReply.push({
-        name: this.config.name,
-        messageID: info.messageID,
-        tag: 'locmen',
-        thread: threadID,
-        author: senderID, storage,
-     })
- }
-
-    global.client.handleReaction.push({
-      name: this.config.name,
-      messageID: info.messageID,
-      sid: senderID,
-    })
- });
-  threadData = storage = null;
-}
-module.exports.handleReply = async function({
-  api
-  , event
-  , args
-  , handleReply
-  , client
-  , __GLOBAL
-  , permssion
-  , Threads
-  , Users
-  , Currencies
+    }, 100);
+    })()
+};
+module.exports.handleEvent = function ({
+    api, event
 }) {
-  try {
-    const { senderID } = event
-    let dataThread = (await Threads.getData(event.threadID)).threadInfo;
-    if (!dataThread.adminIDs.some(item => item.id == api.getCurrentUserID())) return api.sendMessage('❎ Bot cần quyền quản trị viên!', event.threadID, event.messageID);
-    if (!dataThread.adminIDs.some(item => item.id == senderID)) return api.sendMessage('❎ Bạn không đủ quyền hạn để lọc thành viên!', event.threadID, event.messageID);
-    const fs = require('fs');
-    let split = event.body.split(" ");
-
-    if (isNaN(split.join(''))) return api.sendMessage(`⚠️ Dữ liệu không hợp lệ`, event.threadID);
-
-    let msg = [], count_err_rm = 0;
-    for (let $ of split) {
-      let id = handleReply?.storage[$ - 1]?.id;
-
-      if (!!id)try {
-        await api.removeUserFromGroup(id, event.threadID);
-        msg.push(`${$}. ${global.data.userName.get(id)}`)
-      } catch (e) {++count_err_rm;continue};
+    if (!event.isGroup || event.senderID == global.botID) return;
+    const pathJ = `${dirMain}/${event.threadID}.json`;
+    if (!existsSync(pathJ)) writeFileSync(pathJ, '{}');
+    const data = JSON.parse(readFileSync(pathJ));
+    if (!data.user) data.user = [];
+    const allIDMem = event.participantIDs.filter(i => i != global.botID);
+    if (data.user.length != allIDMem.length) {
+        for (const id of allIDMem) if (!data.user.find(i => i.userID == id)) data.user.push(newUser(id, Date.now()+25200000));
+        data.user = data.user.filter(i => allIDMem.includes(i.userID));
     };
-
-    api.sendMessage(`🔄 Đã xóa ${split.length-count_err_rm} người dùng thành công, thất bại ${count_err_rm}\n\n${msg.join('\n')}`, handleReply.thread)
-
-  } catch (e) {
-    console.log(e)
-  }
-}
-module.exports.handleReaction = function({ event, Users, Threads, api, handleReaction: _, Currencies }) {
-  const fs = require('fs')
-  if (event.userID != _.sid) return;
-  if (event.reaction != "❤") return; 
-  api.unsendMessage(_.messageID)
-  let data = JSON.parse(fs.readFileSync(`${path}${event.threadID}.json`));
-  let sort = data.total.sort((a, b) => a.count < b.count ? 0 : -1);
-  api.sendMessage(`[ Kiểm Tra Tất Cả Tin nhắn ]\n────────────────\n${sort.map(($, i) => `${i + 1}. ${global.data.userName.get($.id)} - ${$.count} tin nhắn`).join('\n')}\n────────────────\n[💬] → Tổng tin nhắn: ${data.total.reduce((s, $) => s + $.count, 0)}\n[🏆] → Bạn hiện đứng ở hạng: ${sort.findIndex($ => $.id == event.userID) + 1}\n────────────────\n👉 Hướng dẫn lọc thành viên:\nReply (phản hồi) tin nhắn này theo số thứ tự để xóa thành viên ra khỏi nhóm\n ${global.config.PREFIX}check kick + số tin nhắn để xóa thành viên ra khỏi nhóm\n ${global.config.PREFIX}check reset -> reset lại toàn bộ dữ liệu tin nhắn\n${global.config.PREFIX}check ndfb -> kick người dùng bị bay acc khỏi nhóm\n${global.config.PREFIX}check box -> xem thông tin nhóm`, event.threadID, (err, info) => global.client.handleReply.push({
-    name: this.config.name,
-    messageID: info.messageID,
-    tag: 'locmen',
-    thread: event.threadID,
-    author: event.senderID,
-    storage: sort,
-     })
-  );
-}
+    const fin = data.user.find(i => i.userID == event.senderID);
+    if (fin) ++fin.messenger.day,
+    ++fin.messenger.week,
+    ++fin.messenger.all;
+    writeFileSync(pathJ, JSON.stringify(data, null, 4));
+};
+module.exports.run = function ({
+    api, event, args
+}) {
+    const uid = event.type == 'message_reply' ? event.messageReply.senderID: !!Object.keys(event.mentions)[0] ? Object.keys(event.mentions)[0]: event.senderID;;
+    const allIDMem = event.participantIDs.filter(i => i != global.botID);
+    const pathJ = `${dirMain}/${event.threadID}.json`;
+    const data = JSON.parse(readFileSync(pathJ));
+    const allMem = data.user.filter(i => {
+        if (allIDMem.includes(i.userID)) {
+           i.userName = global.data.userName.get(i.userID);
+           return i;
+        };
+        });
+    const fini = allMem.find(i => i.userID == uid);
+    const args0 = !args[0] ? '': args[0].toLowerCase();
+    allMem.sort(sortCompare('messenger', args0||'all'));
+    switch (args0) {
+        case 'day': case 'week': case 'all': {
+            var txt = '=== 『 Kiểm Tra Tương Tác Nhóm 』\n━━━━━━━━━━━━━━━━';
+            for (var i = 0; i < allMem.length; i++) txt += `\n${i+1}.\n[👤] ➜ Tên: ${allMem[i].userName}\n[💬] ➜ Số tin nhắn: ${localeNum(allMem[i].messenger[args0])}\n`;
+            txt += `\n[📝] ➜ Tổng tin nhắn: ${allMem.map(el=>el.messenger[args0]).reduce((a,b)=>a+b)}${checkAdmin(event.threadID, event.senderID) ?`\n━━━━━━━━━━━━━━━━\n[🗓️] ➜ Ngày check: ${convertTime(new Date(Date.now()+25200000))}\n\n[📌] ➜ Phản hồi tin nhắn này kèm [ Lọc </>/= ] hoặc phản hồi theo số thứ tự 1 2 3 để lọc thành viên!`: ''}`;
+            api.sendMessage(txt, event.threadID, (err, msg) => global.client.handleReply.push({
+              name: this.config.name, messageID: msg.messageID, author: event.senderID, data: {allMem, args0}
+            }), event.messageID);
+        };
+            break;
+        default: (async()=>api.sendMessage({body:`=== 『 Kiểm Tra Tương Tác Nhóm 』\n━━━━━━━━━━━━━━━━\n[🔰] ➜ Nhóm: ${global.data.threadInfo.get(event.threadID).threadName}\n[👤] ➜ Tên: ${fini.userName}\n[💬] ➜ Tổng tin nhắn\n[🌥️] ➜ Hôm nay: ${localeNum(fini.messenger.day)}\n[🗓️] ➜ Tuần này: ${localeNum(fini.messenger.week)}\n[📌] ➜ Tất cả: ${localeNum(fini.messenger.all)}\n[🏆] ➜ Xếp hạng thứ: ${allMem.findIndex(el=>el.userID==uid)+1}\n[⏱️] ➜ Thời gian bắt đầu tương tác: ${fullTime(fini.timestamp)}`,attachment: ((res, path = __dirname+'/cache/1.png')=>{writeFileSync(path, res.data);return createReadStream(path)})(await require('axios').get(`https://graph.facebook.com/${uid}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,{ responseType: 'arraybuffer'})) }, event.threadID, event.messageID))();
+        break;
+      };
+    };
+module.exports.handleReply = async function ({ handleReply: $, api, event
+    }) {
+        const {args} = event;
+        if (event.senderID != $.author || !checkAdmin(event.threadID, event.senderID)) return;
+        if (args[0].toLowerCase() == 'lọc') {
+            var txt = '', adf = [], count = 0;
+            for (const {userID, userName, messenger, timestamp} of $.data.allMem) {
+                const msg = messenger[$.data.args0];
+                const dk = args[1] == '<' ? msg < args[2]: args[1] == '>' ? msg > args[2]: args[1] == '=' ? msg == args[2]: msg == 0;
+                if (dk) {
+                    txt += `${++count}.\n[👤] ➜ Tên: ${userName}\n[💬] ➜ Tin nhắn ${textDWA($.data.args0)}: ${localeNum(msg)}\n[🌐] ➜ Linkfb: www.facebook.com/${userID}\n[⏱️] ➜ Thời gian tạo dữ liệu: ${fullTime(timestamp)}\n\n`;
+                    adf.push(userID);
+                };
+            };
+            txt += `━━━━━━━━━━━━━━━━\n[📌] ➜ Thả cảm xúc để tiến hành xóa ( ${adf.length} ) thành viên có số tin nhắn ${textDWA($.data.args0)} ${args[1] || '='} ${localeNum(args[2]) || 0}`;
+            api.sendMessage(txt, event.threadID, (err, msg) => global.client.handleReaction.push({
+                name: this.config.name, messageID: msg.messageID, author: event.senderID, adf
+            }), event.messageID);
+        } else {
+          if (!checkAdmin(event.threadID, global.botID)) return api.sendMessage(`[📌] ➜ Vui lòng thêm bot làm quản trị viên nhóm rồi thử lại!`, event.threadID);
+    for (const i of args) {
+        try {
+          let mem = $.data.allMem[i-1];
+          if (isFinite(i) && !!mem) await api.removeUserFromGroup(mem.userID, event.threadID);
+        }catch{}
+    };
+        }
+    };
+module.exports.handleReaction = async function ({ handleReaction: $, api, event }) {
+    if (event.userID != $.author) return;
+    if (!checkAdmin(event.threadID, global.botID)) return api.sendMessage(`[📌] ➜ Vui lòng thêm bot làm quản trị viên nhóm rồi thử lại!`, event.threadID);
+    var count = 0
+    for (const id of $.adf) {
+        try {
+           await api.removeUserFromGroup(id, event.threadID);
+        }catch{++count}
+    };
+    api.sendMessage(`[✅] ➜ Lọc thành công ${$.adf.length-count} thành viên!\n[❌] ➜ Lọc thất bại ${count} thành viên!`, event.threadID, $.messageID);
+};

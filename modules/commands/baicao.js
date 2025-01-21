@@ -2,16 +2,14 @@ module.exports.config = {
 	name: "baicao",
 	version: "2.0.1",
 	hasPermssion: 0,
-	credits: "CatalizCS",
+	credits: "CatalizCS",//Mod lại xíu Trankhuong 
 	description: "Game bài cào!", 
 	commandCategory: "Game",
-	usages: "create/start/join/info/leave/check",
-	cooldowns: 5,
-  images: [],
+	usages: "[create/start/join/info/leave/check]",
+	cooldowns: 5
 };
 
 module.exports.handleEvent = async ({ Currencies, event, api, Users }) => {
-  const chalk = require('chalk');
   const fs = require ("fs-extra");
 	const { senderID, threadID, body, messageID } = event;
 	if (typeof body == "undefined") return;
@@ -43,14 +41,14 @@ module.exports.handleEvent = async ({ Currencies, event, api, Users }) => {
 			  linkCards.push(getLinkCard(Card.Value, Card.Suit));
 			}
 			
-			const pathSave = __dirname + `/cache/card${values.player[key].id}.png`;
+			const pathSave = __dirname + `/cache/baicaocard${values.player[key].id}.png`;
 			fs.writeFileSync(pathSave, await drawCard(linkCards));
 			
 			api.sendMessage({
-			  body: `[ BÀI CỦA BẠN ]\n\n${card1.Icon}${card1.Value} 丨 ${card2.Icon}${card2.Value} 丨 ${card3.Icon}${card3.Value}\n\nTổng bài của bạn là: ${tong}`,
+			  body: `[ BÀI CỦA BẠN ]\n──────────────────\n[⚜️]➜ ${card1.Icon}${card1.Value} 丨 ${card2.Icon}${card2.Value} 丨 ${card3.Icon}${card3.Value} [⚜️] \n──────────────────\n[⚜️]➜ Tổng bài của bạn là: ${tong}`,
 			  attachment: fs.createReadStream(pathSave)
 			}, values.player[key].id, (error, info) => {
-				if (error) return api.sendMessage(`⚠️ Không thể chia bài cho: ${values.player[key].id}\nBot không thể inbox bạn, vui lòng inbox bot trước để mở khóa inbox cho bot`, threadID);
+				if (error) return api.sendMessage(`⚡ Không thể chia bài cho: ${values.player[key].id}`, threadID);
 				fs.unlinkSync(pathSave);
 			});
 				
@@ -58,7 +56,7 @@ module.exports.handleEvent = async ({ Currencies, event, api, Users }) => {
 		values.chiabai = 1;
 		global.moduleData.baicao.set(threadID, values);
 		return api.sendMessage({
-    body: '✅ Bài đã được chia đến các người chơi, vui lòng kiểm tra tin nhắn của bot ở spam hoặc tin nhắn chờ!',
+    body: '[⚜️]➜ Bài đã được chia đến các người chơi, vui lòng kiểm tra tin nhắn của bot ở spam/tin nhắn chờ!',
     attachment: (await require('axios').get(`https://i.imgur.com/rr4QpL0.png`, {
         responseType: 'stream'
     })).data
@@ -68,8 +66,8 @@ module.exports.handleEvent = async ({ Currencies, event, api, Users }) => {
 	if (body.indexOf("Đổi bài") == 0) {
 		if (values.chiabai != 1) return;
 		var player = values.player.find(item => item.id == senderID);
-		if (player.doibai == 0) return api.sendMessage("❎ Bạn đã sử dụng toàn bộ lượt đổi bài!", threadID, messageID);
-		if (player.ready == true) return api.sendMessage("❎ Bạn đã ready, bạn không thể đổi bài!", threadID, messageID);
+		if (player.doibai == 0) return api.sendMessage("⚡ Bạn đã sử dụng toàn bộ lượt đổi bài!", threadID, messageID);
+		if (player.ready == true) return api.sendMessage("⚡ Bạn đã ready, bạn không thể đổi bài!", threadID, messageID);
 		const card = ["card1","card2","card3"];
 		player[card[(Math.floor(Math.random() * card.length))]] = deckShuffel.shift();
 		player.tong = (player.card1.Weight + player.card2.Weight + player.card3.Weight);
@@ -85,19 +83,19 @@ module.exports.handleEvent = async ({ Currencies, event, api, Users }) => {
 		  linkCards.push(getLinkCard(Card.Value, Card.Suit));
 		}
 		
-	  const pathSave = __dirname + `/cache/card${player.id}.png`;
+	  const pathSave = __dirname + `/cache/baicaocard${player.id}.png`;
 		fs.writeFileSync(pathSave, await drawCard(linkCards));
 	  
 		return api.sendMessage({
-		  body: `[ BÀI CỦA BẠN ]\n\n${player.card1.Icon}${player.card1.Value} 丨 ${player.card2.Icon}${player.card2.Value} 丨 ${player.card3.Icon}${player.card3.Value}\n\nTổng bài của bạn là: ${player.tong}`,
+		  body: `[ BÀI CỦA BẠN ]\n──────────────────\n[⚜️]➜  ${player.card1.Icon}${player.card1.Value} 丨 ${player.card2.Icon}${player.card2.Value} 丨 ${player.card3.Icon}${player.card3.Value} [⚜️]➜\n──────────────────\n[⚜️]➜ Tổng bài của bạn là: ${player.tong}`,
 		  attachment: fs.createReadStream(pathSave)
     }, player.id, (error, info) => {
-			if (error) return api.sendMessage(`Không thể đổi bài cho: ${player.id}`, threadID);
+			if (error) return api.sendMessage(`⚡ Không thể đổi bài cho: ${player.id}`, threadID);
 			fs.unlinkSync(pathSave);
 		});
 	}
 
-	if (body.indexOf("Lật bài") == 0) {
+	if (body.indexOf("Ready") == 0) {
 		if (values.chiabai != 1) return;
 		var player = values.player.find(item => item.id == senderID);
 		if (player.ready == true) return;
@@ -112,7 +110,7 @@ module.exports.handleEvent = async ({ Currencies, event, api, Users }) => {
 
 			for (const info of player) {
 				const name = await Users.getNameUser(info.id);
-				ranking.push(`${num++} » 👤 Người chơi: ${name}\n${info.card1.Icon}${info.card1.Value} 丨 ${info.card2.Icon}${info.card2.Value} 丨 ${info.card3.Icon}${info.card3.Value} = ${info.tong} Nút\n`);
+				ranking.push(`${num++} » 👤 Người chơi: ${name}\n[⚜️]➜ ${info.card1.Icon}${info.card1.Value} 丨 ${info.card2.Icon}${info.card2.Value} 丨 ${info.card3.Icon}${info.card3.Value} = ${info.tong} Nút\n`);
 			}
 			
 			try {
@@ -120,7 +118,7 @@ module.exports.handleEvent = async ({ Currencies, event, api, Users }) => {
 			} catch (e) {};
 			global.moduleData.baicao.delete(threadID);
 			
-			return api.sendMessage(`[ KẾT QUẢ BÀI CÀO ]\n────────────────\n ${ranking.join("\n────────────────\n")}\n────────────────\nRiêng người chơi đứng đầu nhận được: ${values.rateBet * player.length.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$`, threadID);
+			return api.sendMessage(`[ KẾT QUẢ BÀI CÀO ]\n──────────────────\n ${ranking.join("\n──────────────────\n")}\n──────────────────\n[⚜️]➜ Riêng người chơi đứng đầu nhận được: ${values.rateBet * player.length}$`, threadID);
 		}
 		else return api.sendMessage(`👤 Người chơi ${name} đã sẵn sàng lật bài còn: ${values.player.length - values.ready} người chơi chưa lật bài!`, event.threadID);
 	}
@@ -133,7 +131,7 @@ module.exports.handleEvent = async ({ Currencies, event, api, Users }) => {
 			const name = global.data.userName.get(info.id) || await Users.getNameUser(info.id);
 			msg.push(name);
 		}
-		if (msg.length != 0) return api.sendMessage("Những người chơi chưa ready bao gồm: " + msg.join(", "), threadID);
+		if (msg.length != 0) return api.sendMessage("⚡ Những người chơi chưa ready bao gồm: " + msg.join(", "), threadID);
 		else return;
 	}
 }
@@ -142,7 +140,7 @@ module.exports.handleEvent = async ({ Currencies, event, api, Users }) => {
 module.exports.run = async ({ api, event, args, Currencies }) => {
 	var { senderID, threadID, messageID } = event;
   if (args.length == 0) return api.sendMessage({
-    body: `[ GAME BÀI CÀO ]\n────────────────\nHướng dẫn cách chơi:\n\nTạo bàn: ${global.config.PREFIX}baicao create\nTham gia bàn: ${global.config.PREFIX}baicao join\nBắt đầu chơi: ${global.config.PREFIX}baicao start\n────────────────\nNhập (Chia bài) để chia bài cho các người chơi\nNhập (Đổi bài) để đổi bài, mỗi người chơi có 2 lượt\nNhập (Lật bài) để mở bài\n────────────────\nXem thông tin bàn bài: ${global.config.PREFIX}baicao info\nKiểm tra inbox người chơi: ${global.config.PREFIX}baicao check\nRời bàn bài: ${global.config.PREFIX}baicao leave`,
+    body: `[ GAME BÀI CÀO ]\n──────────────────\n[⚜️]➜ Hướng dẫn cách chơi:\n\n[⚜️]➜ Tạo bàn: ${global.config.PREFIX}baicao create\n[⚜️]➜ Tham gia bàn: ${global.config.PREFIX}baicao join\n[⚜️]➜ Bắt đầu chơi: ${global.config.PREFIX}baicao start\n──────────────────\n[⚜️]➜ Nhập ( Chia bài ) để chia bài cho các người chơi\n[⚜️]➜ Nhập ( Đổi bài ) để đổi bài, mỗi người chơi có 2 lượt\n[⚜️]➜ Nhập ( Ready ) để mở bài\n──────────────────\n[⚜️]➜ Xem thông tin bàn bài: ${global.config.PREFIX}baicao info\n[⚜️]➜ Kiểm tra inbox người chơi: ${global.config.PREFIX}baicao check\n[⚜️]➜ Rời bàn bài: ${global.config.PREFIX}baicao leave`,
     attachment: (await require('axios').get(`https://i.imgur.com/kbidlyc.jpg`, {
         responseType: 'stream'
     })).data
@@ -157,38 +155,38 @@ module.exports.run = async ({ api, event, args, Currencies }) => {
 	switch (args[0]) {
 		case "create":
 		case "-c": {
-			if (global.moduleData.baicao.has(threadID)) return api.sendMessage("Hiện tại nhóm này đang có bàn bài cào đang được mở!", threadID, messageID);
-			if (!args[1] || isNaN(args[1]) || parseInt(args[1]) <= 10000) return api.sendMessage("❎ Mức đặt cược của bạn không phải là một con số hoặc mức đặt cược của bạn bé hơn 10,000$", threadID, messageID);
-      if (money < args[1]) return api.sendMessage(`❎ Bạn không đủ tiền để có thể khởi tạo bàn với giá: ${args[1].toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}`,event.threadID,event.messageID);
+			if (global.moduleData.baicao.has(threadID)) return api.sendMessage("⚡ Hiện tại nhóm này đang có bàn bài cào đang được mở!", threadID, messageID);
+			if (!args[1] || isNaN(args[1]) || parseInt(args[1]) <= 1) return api.sendMessage("⚡ Mức đặt cược của bạn không phải là một con số hoặc mức đặt cược của bạn bé hơn 1$", threadID, messageID);
+      if (money < args[1]) return api.sendMessage(`⚡ Bạn không đủ tiền để có thể khởi tạo bàn với giá: ${args[1]}$`,event.threadID,event.messageID);
       await Currencies.decreaseMoney(event.senderID, Number(args[1]));
 			global.moduleData.baicao.set(event.threadID, { "author": senderID, "start": 0, "chiabai": 0, "ready": 0, player: [ { "id": senderID, "card1": 0, "card2": 0, "card3": 0, "doibai": 2, "ready": false } ], rateBet: Number(args[1])});
-			return api.sendMessage(`Bàn bài cào của bạn đã được tạo thành công. Để tham gia bạn hãy nhập ${global.config.PREFIX}baicao join + số tiền`, event.threadID, event.messageID);
+			return api.sendMessage(`⚡ Bàn bài cào của bạn đã được tạo thành công. Để tham gia bạn hãy nhập '${global.config.PREFIX}baicao join'`, event.threadID, event.messageID);
 		}
 		
 		case "join":
 		case "-j": {
-			if (!values) return api.sendMessage(`Hiện tại chưa có bàn bài cào nào, bạn có thể tạo bằng cách sử dụng ${global.config.PREFIX}baicao create + số tiền`, threadID, messageID);
-			if (values.start == 1) return api.sendMessage("Hiện tại bàn bài cào đã được bắt đầu!", threadID, messageID);
-			if (money < values.rateBet) return api.sendMessage(`Bạn không đủ: ${values.rateBet.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$ để tham gia bàn bài cào này!`,event.threadID,event.messageID)
-			if (values.player.find(item => item.id == senderID)) return api.sendMessage("Bạn đã tham gia vào bàn bài cào này!", threadID, messageID);
+			if (!values) return api.sendMessage(`⚡ Hiện tại chưa có bàn bài cào nào, bạn có thể tạo bằng cách sử dụng '${global.config.PREFIX}baicao create'`, threadID, messageID);
+			if (values.start == 1) return api.sendMessage("⚡ Hiện tại bàn bài cào đã được bắt đầu!", threadID, messageID);
+			if (money < values.rateBet) return api.sendMessage(`⚡ Bạn không đủ: ${values.rateBet}$ để tham gia bàn bài cào này!`,event.threadID,event.messageID)
+			if (values.player.find(item => item.id == senderID)) return api.sendMessage("⚡ Bạn đã tham gia vào bàn bài cào này!", threadID, messageID);
 			values.player.push({ "id": senderID, "card1": 0, "card2": 0, "card3": 0, "tong": 0, "doibai": 2, "ready": false });
 			await Currencies.decreaseMoney(event.senderID, values.rateBet);
 			global.moduleData.baicao.set(threadID, values);
-			return api.sendMessage("Bạn đã tham gia thành công!", threadID, messageID);
+			return api.sendMessage("⚡ Bạn đã tham gia thành công!", threadID, messageID);
 		}
 
 		case "leave":
 		case "-l": {
-			if (typeof values.player == "undefined") return api.sendMessage("Hiện tại chưa có bàn bài cào nào, bạn có thể tạo bằng cách sử dụng 'baicao create'", threadID, messageID);
-			if (!values.player.some(item => item.id == senderID)) return api.sendMessage("Bạn chưa tham gia vào bàn bài cào trong nhóm này!", threadID, messageID);
-			if (values.start == 1) return api.sendMessage("Hiện tại bàn bài cào đã được bắt đầu!", threadID, messageID);
+			if (typeof values.player == "undefined") return api.sendMessage(`⚡ Hiện tại chưa có bàn bài cào nào, bạn có thể tạo bằng cách sử dụng '${global.config.PREFIX}baicao create'`, threadID, messageID);
+			if (!values.player.some(item => item.id == senderID)) return api.sendMessage("⚡ Bạn chưa tham gia vào bàn bài cào trong nhóm này!", threadID, messageID);
+			if (values.start == 1) return api.sendMessage("⚡ Hiện tại bàn bài cào đã được bắt đầu!", threadID, messageID);
 			if (values.author == senderID) {
 				global.moduleData.baicao.delete(threadID);
-				api.sendMessage("Chủ bàn đã rời khỏi bàn, đồng nghĩa với việc bàn sẽ bị giải tán!", threadID, messageID);
+				api.sendMessage("⚡ Chủ bàn đã rời khỏi bàn, đồng nghĩa với việc bàn sẽ bị giải tán!", threadID, messageID);
 			}
 			else {
 				values.player.splice(values.player.findIndex(item => item.id === senderID), 1);
-				api.sendMessage("Bạn đã rời khỏi bàn bài cào này!", threadID, messageID);
+				api.sendMessage("⚡ Bạn đã rời khỏi bàn bài cào này!", threadID, messageID);
 				global.moduleData.baicao.set(threadID, values);
 			}
 			return;
@@ -197,37 +195,37 @@ module.exports.run = async ({ api, event, args, Currencies }) => {
     case 'check': {
       for (const key in values.player) {
 			
-			api.sendMessage(`Bạn có nhìn thấy tin nhắn này?`, values.player[key].id, (error, info) => {
-				if (error) return api.sendMessage(`Không thể nhắn tin cho: ${values.player[key].id}`, threadID);
+			api.sendMessage(`⚡ Bạn có nhìn thấy tin nhắn này?`, values.player[key].id, (error, info) => {
+				if (error) return api.sendMessage(`⚡ Không thể nhắn tin cho: ${values.player[key].id}`, threadID);
 			});
 		}
-		return api.sendMessage("Đang kiểm tra tình trạng inbox của người chơi!", threadID);
+		return api.sendMessage("⚡ Đang kiểm tra tình trạng inbox của người chơi!", threadID);
 	}
 
 		case "start":
 		case "-s": {
-			if (!values) return api.sendMessage("Hiện tại chưa có bàn bài cào nào, bạn có thể tạo bằng cách sử dụng 'baicao create'", threadID, messageID);
-			if (values.author !== senderID) return api.sendMessage("Bạn không phải là chủ bàn để có thể bắt đầu!", threadID, messageID);
-			if (values.player.length <= 1) return api.sendMessage("Hiện tại bàn của bạn không có người chơi nào tham gia, bạn có thể mời người đấy tham gia bằng cách yêu cầu người chơi khác nhập 'baicao join'", threadID, messageID);
-			if (values.start == 1) return api.sendMessage("Hiện tại bàn đã được bắt đầu bởi chủ bàn!", threadID, messageID);
+			if (!values) return api.sendMessage(`⚡ Hiện tại chưa có bàn bài cào nào, bạn có thể tạo bằng cách sử dụng '${global.config.PREFIX}baicao create'`, threadID, messageID);
+			if (values.author !== senderID) return api.sendMessage("⚡ Bạn không phải là chủ bàn để có thể bắt đầu!", threadID, messageID);
+			if (values.player.length <= 1) return api.sendMessage(`⚡ Hiện tại bàn của bạn không có người chơi nào tham gia, bạn có thể mời người đấy tham gia bằng cách yêu cầu người chơi khác nhập '${global.config.PREFIX}baicao join'`, threadID, messageID);
+			if (values.start == 1) return api.sendMessage("⚡ Hiện tại bàn đã được bắt đầu bởi chủ bàn!", threadID, messageID);
 			values.deckShuffel = createDeck();
 			values.start = 1;
-			return api.sendMessage("Bàn bài cào của bạn được bắt đầu!", threadID, messageID);
+			return api.sendMessage("⚡ Bàn bài cào của bạn được bắt đầu!", threadID, messageID);
 		}
 
 		case "info":
 		case "-i": {
-			if (typeof values.player == "undefined") return api.sendMessage(`Hiện tại chưa có bàn bài cào nào, bạn có thể tạo bằng cách sử dụng ${global.config.PREFIX}baicao create + số tiền`, threadID, messageID);
+			if (typeof values.player == "undefined") return api.sendMessage(`⚡ Hiện tại chưa có bàn bài cào nào, bạn có thể tạo bằng cách sử dụng '${global.config.PREFIX}baicao create'`, threadID, messageID);
 			return api.sendMessage(
 				"[ BÀN BÀI CÀO ]" +
-				"\n────────────────\n👤 Chủ Bàn: " + values.author +
+				"\n──────────────────\n👤 Chủ Bàn: " + values.author +
 				"\n👥 Tổng số người chơi: " + values.player.length + " người" +
-        "\n💵 Mức cược: " + values.rateBet.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + "$"
+        "\n💵 Mức cược: " + values.rateBet + "$"
 			, threadID, messageID);
 		}
 
 		default: {
-			console.log("[ BAICAO ] - Hi, have a good day.")
+			console.log("[ J-JRT ] » Hi, have a good day.")
 		}
 	}
 }
@@ -251,8 +249,8 @@ for (let i = 0 ; i < values.length; i++) {
   }
 }
 
-module.exports.onLoad = async () => {
-};
+module.exports.onLoad = async () => {};
+
 function createDeck() {
   const deckShuffel = [...deck];
   for (let i = 0; i < 1000; i++) {

@@ -1,11 +1,11 @@
 module.exports.config = {
-    name: 'ytb',
+    name: 'video',
     version: '1.0.0',
     hasPermssion: 0,
     credits: 'DungUwU',
     description: 'Phát nhạc hoặc video thông qua link YouTube hoặc từ khoá tìm kiếm',
     commandCategory: 'Phương tiện',
-    usages: 'ytb < keyword/url >',
+    usages: 'video < keyword/url >',
     cooldowns: 5,
     dependencies: {
         'moment-timezone': '',

@@ -1,17 +1,16 @@
 const coinsup = 10000 //thay số coins được nhận khi đoán trúng
-const coinsdown = 500 //thay số coins bị mất khi yêu cầu gợi ý
+const coinsdown = 2000 //thay số coins bị mất khi yêu cầu gợi ý
 const timeUnsend = 1 //thời gian thu hồi tin nhắn sau khi trả lời đúng trong thời gian timeUnsend
-const axios = require("axios");
+const axios = require("axios")
 module.exports.config = {
     name: "dhbc",
     version: "1.2.0",
     hasPermssion: 0,
     credits: "D-Jukie",
-    description: "Đuổi hình bắt chữ trên chính messenger của bạn",
+    description: "Đuổi hình bắt chữ trên chính messenger của bạn!!!",
     commandCategory: "Game",
     usages: "[1/2]",
-    cooldowns: 10,
-    images: [],
+    cooldowns: 10
 };
 
 
@@ -32,7 +31,7 @@ module.exports.handleReply = async function ({
         switch (event.body) {
         case "2": {
             api.unsendMessage(handleReply.messageID);
-            const res = await axios.get(`https://raw.githubusercontent.com/J-JRT/api1/mainV2/data.json`);
+            const res = await axios.get(`https://raw.githubusercontent.com/TuanDeepTry-14072003/API/mainV2/data.json`);
             const length1 = res.data.doanhinh.length
             const dataGame = res.data.doanhinh[Math.floor(Math.random() * length1)]
             const tukhoadung = dataGame.tukhoa;
@@ -56,7 +55,7 @@ module.exports.handleReply = async function ({
             imglove.push(fs.createReadStream(__dirname + "/cache/anh2.png"));
 
             var msg = {
-                body: `Vui lòng reply tin nhắn này để trả lời\nGợi ý: ${sokitu}\n\nReply: Gợi ý - để xem gợi ý 2 (-${coinsdown.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$)`,
+                body: `🌸 𝗩𝘂𝗶 𝗹𝗼̀𝗻𝗴 𝗿𝗲𝗽𝗹𝘆 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻 𝗻𝗮̀𝘆 𝘃𝗮̀ 𝘁𝗿𝗮̉ 𝗹𝗼̛̀𝗶:\n𝗚𝗼̛̣𝗶 𝘆́: ${sokitu}\n\n🌸 𝗥𝗲𝗽𝗹𝘆 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻 𝗻𝗮̀𝘆 𝘃𝗮̀ 𝗻𝗵𝗮̣̂𝗽 "𝗚𝗼̛̣𝗶 𝘆́" - 𝗻𝗲̂́𝘂 𝗺𝘂𝗼̂́𝗻 𝘅𝗲𝗺 𝗴𝗼̛̣𝗶 𝘆́ 𝟮 (-${coinsdown}$)`,
                 attachment: imglove
             }
             return api.sendMessage(msg, event.threadID, (error, info) => {
@@ -72,7 +71,7 @@ module.exports.handleReply = async function ({
         }
         case "1": {
             api.unsendMessage(handleReply.messageID);
-            const res = await axios.get(`https://raw.githubusercontent.com/J-JRT/api1/mainV2/data2.json`);
+            const res = await axios.get(`https://raw.githubusercontent.com/TuanDeepTry-14072003/API/mainV2/data2.json`);
             const length2 = res.data.doanhinh.length
             const dataGame = res.data.doanhinh[Math.floor(Math.random() * length2)]
             const tukhoadung = dataGame.tukhoa;
@@ -90,7 +89,7 @@ module.exports.handleReply = async function ({
             imglove.push(fs.createReadStream(__dirname + "/cache/anh1.png"));
 
             var msg = {
-                body: `Vui lòng reply tin nhắn này để trả lời\nGợi ý: ${sokitu}\n\nReply: Gợi ý - để xem gợi ý 2 (-${coinsdown.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$)`,
+                body: `🌸 𝗩𝘂𝗶 𝗹𝗼̀𝗻𝗴 𝗿𝗲𝗽𝗹𝘆 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻 𝗻𝗮̀𝘆 𝘃𝗮̀ 𝘁𝗿𝗮̉ 𝗹𝗼̛̀𝗶:\n𝗚𝗼̛̣𝗶 𝘆́: ${sokitu}\n\n🌸 𝗥𝗲𝗽𝗹𝘆 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻 𝗻𝗮̀𝘆 𝘃𝗮̀ 𝗻𝗵𝗮̣̂𝗽 "𝗚𝗼̛̣𝗶 𝘆́" - 𝗻𝗲̂́𝘂 𝗺𝘂𝗼̂́𝗻 𝘅𝗲𝗺 𝗴𝗼̛̣𝗶 𝘆́ 𝟮 (-${coinsdown}$)`,
                 attachment: imglove
             }
             return api.sendMessage(msg, event.threadID, (error, info) => {
@@ -106,8 +105,8 @@ module.exports.handleReply = async function ({
         }
         }
         const choose = parseInt(event.body);
-        if (isNaN(event.body)) return api.sendMessage("Vui lòng nhập 1 con số", event.threadID, event.messageID);
-        if (choose > 2 || choose < 1) return api.sendMessage("Lựa chọn không nằm trong danh sách.", event.threadID, event.messageID)
+        if (isNaN(event.body)) return api.sendMessage("🌸 𝗩𝘂𝗶 𝗹𝗼̀𝗻𝗴 𝗻𝗵𝗮̣̂𝗽 𝟭 𝗰𝗼𝗻 𝘀𝗼̂́", event.threadID, event.messageID);
+        if (choose > 2 || choose < 1) return api.sendMessage("🌸 𝗟𝘂̛̣𝗮 𝗰𝗵𝗼̣𝗻 𝗸𝗵𝗼̂𝗻𝗴 𝗻𝗮̆̀𝗺 𝘁𝗿𝗼𝗻𝗴 𝗱𝗮𝗻𝗵 𝘀𝗮́𝗰𝗵.", event.threadID, event.messageID)
     }
 
 
@@ -115,9 +114,9 @@ module.exports.handleReply = async function ({
         const dapan = event.body
         if (dapan.toLowerCase() == "gợi ý" ) { 
             let balance = (await Currencies.getData(event.senderID)).money;
-            if (coinsdown > balance) return api.sendMessage(`Số dư không đủ ${coinsdown.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$ để xem gợi ý`,event.threadID,event.messageID);
+            if (coinsdown > balance) return api.sendMessage(`🌸 𝗦𝗼̂́ 𝗱𝘂̛ 𝗯𝗶̣ 𝘁𝗵𝗶𝗲̂́𝘂, 𝗰𝗮̂̀𝗻 ${coinsdown}$ 𝗻𝗲̂́𝘂 𝗺𝘂𝗼̂́𝗻 𝘅𝗲𝗺 𝗴𝗼̛̣𝗶 𝘆́`,event.threadID,event.messageID);
             await Currencies.decreaseMoney(event.senderID, parseInt(coinsdown))
-            api.sendMessage(`Gợi ý cho bạn là: \n${suggestions} -${coinsdown.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$`, event.threadID, event.messageID) 
+            api.sendMessage(`🌸 𝗚𝗼̛̣𝗶 𝘆́ 𝗰𝗵𝗼 𝗯𝗮̣𝗻 𝗹𝗮̀: \n${suggestions} (-${coinsdown}$)`, event.threadID, event.messageID) 
         }
         else { 
         if (dapan.toLowerCase() == tukhoa) {
@@ -127,18 +126,18 @@ module.exports.handleReply = async function ({
             setTimeout(function () {
                 api.unsendMessage(handleReply.messageID);
             }, timeUnsend*1000);
-            return api.sendMessage(`${name1.name} đã trả lời chính xác!\nĐáp án: ${tukhoa} +${coinsup.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$`, event.threadID, event.messageID)
+            return api.sendMessage(`🌸 ${name1.name} 𝘃𝘂̛̀𝗮 𝘁𝗿𝗮̉ 𝗹𝗼̛̀𝗶 𝗰𝗵𝗶́𝗻𝗵 𝘅𝗮́𝗰\n🌸 𝗞𝗲̂́𝘁 𝗾𝘂𝗮̉: ${tukhoa} (+${coinsup}$)`, event.threadID, event.messageID)
         } else
-            return api.sendMessage(`Sai rồi`, event.threadID, event.messageID)
+            return api.sendMessage(`🌸 𝗦𝗮𝗶 𝗿𝗼̂̀𝗶 𝗻𝗵𝗮`, event.threadID, event.messageID)
     }
 } ; break;
     case "reply2": {
         const dapan1 = event.body
         if (dapan1.toLowerCase() == "gợi ý") { 
             let balance = (await Currencies.getData(event.senderID)).money;
-            if (coinsdown > balance) return api.sendMessage(`Số dư không đủ ${coinsdown.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$ để xem gợi ý`,event.threadID,event.messageID);
+            if (coinsdown > balance) return api.sendMessage(`𝗦𝗼̂́ 𝗱𝘂̛ 𝗯𝗶̣ 𝘁𝗵𝗶𝗲̂́𝘂, 𝗰𝗮̂̀𝗻 ${coinsdown}$ 𝗻𝗲̂́𝘂 𝗺𝘂𝗼̂́𝗻 𝘅𝗲𝗺 𝗴𝗼̛̣𝗶 𝘆́`,event.threadID,event.messageID);
             await Currencies.decreaseMoney(event.senderID, parseInt(coinsdown))
-            api.sendMessage(`Gợi ý cho bạn là\n${suggestions} -${coinsdown.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$`, event.threadID, event.messageID) 
+            api.sendMessage(`🌸 𝗚𝗼̛̣𝗶 𝘆́ 𝗰𝗵𝗼 𝗯𝗮̣𝗻 𝗹𝗮̀: \n${suggestions} (-${coinsdown}$)`, event.threadID, event.messageID) 
         }
             else {
             
@@ -148,9 +147,9 @@ module.exports.handleReply = async function ({
             setTimeout(function () {
                 api.unsendMessage(handleReply.messageID);
             }, timeUnsend*1000);
-            return api.sendMessage(`${name1.name} đã trả lời chính xác\nĐáp án: ${tukhoa} +${coinsup.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$`, event.threadID, event.messageID)
+            return api.sendMessage(`🌸 ${name1.name} 𝘃𝘂̛̀𝗮 𝘁𝗿𝗮̉ 𝗹𝗼̛̀𝗶 𝗰𝗵𝗶́𝗻𝗵 𝘅𝗮́𝗰\n🌸 𝗞𝗲̂́𝘁 𝗾𝘂𝗮̉: ${tukhoa} (+${coinsup}$)`, event.threadID, event.messageID)
         } else
-            return api.sendMessage(`Sai rồi`, event.threadID, event.messageID)
+            return api.sendMessage(`🌸 𝗦𝗮𝗶 𝗿𝗼̂̀𝗶 𝗻𝗵𝗮`, event.threadID, event.messageID)
 }
 }
 default: break;
@@ -164,9 +163,9 @@ module.exports.run = async function ({
     event,
     Users
 }) {
-    if ((this.config.credits) != "D-Jukie") { return api.sendMessage(`Phát hiện credits đã bị thay đổi`, event.threadID, event.messageID)}
+    if ((this.config.credits) != "D-Jukie") { return api.sendMessage(`⚡️Phát hiện credits đã bị thay đổi`, event.threadID, event.messageID)}
     if (!args[0]) {
-    return api.sendMessage(`Vui lòng thêm chế độ chơi\n\n1: Một ảnh\n2: Hai ảnh\n\nVui lòng reply tin nhắn này để chọn chế độ`, event.threadID, (error, info) => {
+    return api.sendMessage(`💮===== [ 𝗗𝗛𝗕𝗖 ] =====💮\n━━━━━━━━━━━━━\n\n🌸 𝗩𝘂𝗶 𝗹𝗼̀𝗻𝗴 𝗰𝗵𝗼̣𝗻 𝗸𝗶𝗲̂̉𝘂 𝗰𝗵𝗼̛𝗶:\n\n𝟭: 𝗠𝗼̣̂𝘁 𝗮̉𝗻𝗵\n𝟮: 𝗛𝗮𝗶 𝗮̉𝗻𝗵\n\n🌸 𝗛𝗮̃𝘆 𝗿𝗲𝗽𝗹𝘆 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻 𝗻𝗮̀𝘆 𝘃𝗮̀ 𝗰𝗵𝗼̣𝗻 𝗻𝗵𝗲́`, event.threadID, (error, info) => {
         
             global.client.handleReply.push({
                 type: "choosee",
@@ -178,7 +177,7 @@ module.exports.run = async function ({
     }
     if (args[0] == '1') {
     //api.unsendMessage(handleReply.messageID);
-            const res = await axios.get(`https://raw.githubusercontent.com/J-JRT/api1/mainV2/data2.json`);
+            const res = await axios.get(`https://raw.githubusercontent.com/TuanDeepTry-14072003/API/mainV2/data2.json`);
             const length2 = res.data.doanhinh.length
             const dataGame = res.data.doanhinh[Math.floor(Math.random() * length2)]
             const tukhoadung = dataGame.tukhoa;
@@ -196,7 +195,7 @@ module.exports.run = async function ({
             imglove.push(fs.createReadStream(__dirname + "/cache/anh1.png"));
 
             var msg = {
-                body: `Vui lòng reply tin nhắn này để trả lời\nGợi ý: ${sokitu}\n\nReply: Gợi ý - để xem gợi ý 2 (-${coinsdown.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$)`,
+                body: `🌸 𝗩𝘂𝗶 𝗹𝗼̀𝗻𝗴 𝗿𝗲𝗽𝗹𝘆 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻 𝗻𝗮̀𝘆 𝘃𝗮̀ 𝘁𝗿𝗮̉ 𝗹𝗼̛̀𝗶:\n𝗚𝗼̛̣𝗶 𝘆́: ${sokitu}\n\n🌸 𝗥𝗲𝗽𝗹𝘆 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻 𝗻𝗮̀𝘆 𝘃𝗮̀ 𝗻𝗵𝗮̣̂𝗽 "𝗚𝗼̛̣𝗶 𝘆́" - 𝗻𝗲̂́𝘂 𝗺𝘂𝗼̂́𝗻 𝘅𝗲𝗺 𝗴𝗼̛̣𝗶 𝘆́ 𝟮 (-${coinsdown}$)`,
                 attachment: imglove
             }
             return api.sendMessage(msg, event.threadID, (error, info) => {
@@ -212,7 +211,7 @@ module.exports.run = async function ({
     }
     if (args[0] == '2') {
     //api.unsendMessage(handleReply.messageID);
-            const res = await axios.get(`https://raw.githubusercontent.com/J-JRT/api1/mainV2/data2.json`);
+            const res = await axios.get(`https://raw.githubusercontent.com/TuanDeepTry-14072003/API/mainV2/data2.json`);
             const length1 = res.data.doanhinh.length
             const dataGame = res.data.doanhinh[Math.floor(Math.random() * length1)]
             const tukhoadung = dataGame.tukhoa;
@@ -236,7 +235,7 @@ module.exports.run = async function ({
             imglove.push(fs.createReadStream(__dirname + "/cache/anh2.png"));
 
             var msg = {
-                body: `Vui lòng reply tin nhắn này để trả lời\nGợi ý: ${sokiu}\n\nReply: Gợi ý - để xem gợi ý 2 (-${coinsdown.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}$)`,
+                body: `🌸 𝗩𝘂𝗶 𝗹𝗼̀𝗻𝗴 𝗿𝗲𝗽𝗹𝘆 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻 𝗻𝗮̀𝘆 𝘃𝗮̀ 𝘁𝗿𝗮̉ 𝗹𝗼̛̀𝗶:\n𝗚𝗼̛̣𝗶 𝘆́: ${sokiu}\n\n🌸 𝗥𝗲𝗽𝗹𝘆 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻 𝗻𝗮̀𝘆 𝘃𝗮̀ 𝗻𝗵𝗮̣̂𝗽 "𝗚𝗼̛̣𝗶 𝘆́" - 𝗻𝗲̂́𝘂 𝗺𝘂𝗼̂́𝗻 𝘅𝗲𝗺 𝗴𝗼̛̣𝗶 𝘆́ 𝟮 (-${coinsdown}$)`,
                 attachment: imglove
             }
             return api.sendMessage(msg, event.threadID, (error, info) => {

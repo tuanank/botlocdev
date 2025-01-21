@@ -1,3 +1,4 @@
+'use strict';
 module.exports.config = {
   name: "loto",
   version: "1.0.4",
@@ -7,7 +8,6 @@ module.exports.config = {
   usages: "[create/join/start]\n---------o>\ncreate [số tiền] (tối thiểu 50 đô)\njoin (số dư phải >= với số người tạo đặt)\nstart (bắt đầu trò chơi)\n---------o>",
   commandCategory: "Game",
   cooldowns: 5,
-  images: [],
   envConfig: {
     maxPlayers: 10,//tối thiểu 2, tối đa 10
     getDelay: 8 //delay bốc số (giây)
@@ -150,29 +150,29 @@ module.exports.languages = {
     "cannotInbox": "%1, bot không thể inbox bạn, vui lòng inbox bot trước để mở khóa inbox cho bot",
     "notJoined": "Bạn chưa tham gia!",
     "getReady": "Bắt đầu!\nCứ sau %1 giây, bot sẽ bốc 1 số!",
-    "gotNum": "✏️ Số %1",
+    "gotNum": "Số %1",
     "BINGO": "Chúc mừng %1 đã KINH (chiến thắng) và nhận được số tiền thưởng là: %2 đô",
     "notReady": "Bot không thể inbox 1 số người, hoặc bản thân bot đã bị block inbox, không thể bắt đầu.",
-    "info": "[ LÔ TÔ ]\n──────────────────\n|› loto create: tạo phòng chơi\n|› loto join: tham gia vào phòng game\n|› loto start: bắt đầu ván chơi\n\n• Khi dùng lệnh tạo phòng, số tiền đặt ra sẽ là số tiền cần nếu những người khác muốn vào, ví dụ đặt 100 đô thì người khác muốn vào cần phải có 100 đô!\n+ Bot sẽ đếm số sau 1 khoảng thời gian, ví dụ cứ 5 giây bot sẽ bốc số và gửi vào nhóm, người tham gia dò số với tờ bot gửi trong inbox, khi đủ các số theo 1 hàng ngang bất kỳ, người chơi sẽ chiến thắng và tiền thưởng là tất cả số tiền mà người chơi khác đã đặt còn những người thua thì chỉ mất những gì mình đã đặt mà thôi."
+    "info": "[ LÔ TÔ ]\n- Vâng, là lô tô đó xD -\n+ Khi dùng lệnh tạo phòng, số tiền đặt ra sẽ là số tiền cần nếu những người khác muốn vào, ví dụ đặt 100 đô thì người khác muốn vào cần phải có 100 đô!\n+ Bot sẽ đếm số sau 1 khoảng thời gian, ví dụ cứ 5 giây bot sẽ bốc số và gửi vào nhóm, người tham gia dò số với tờ bot gửi trong inbox, khi đủ các số theo 1 hàng ngang bất kỳ, người chơi sẽ chiến thắng và tiền thưởng là tất cả số tiền mà người chơi khác đã đặt còn những người thua thì chỉ mất những gì mình đã đặt mà thôi."
   }
 };
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports.onLoad = async () => {
-  await require('axios').get("https://raw.githubusercontent.com/RFS-ADRENO/mirai-modules/main/version.json").then(res => {
-    if (res.data["loto_x024"] != this.config.version);
+  await require('axios').get("https://raw.githubusercontent.com/J-JRT/version/mainV2/version.json").then(res => {
+    if (res.data["loto_x024"] != this.config.version) console.log("=== LOTO ĐÃ CÓ PHIÊN BẢN MỚI, LIÊN HỆ J-JRT ĐỂ ĐƯỢC CẬP NHẬT ===");
   });
-  let path = __dirname + '/game/loto/';
+  let path = __dirname + '/loto/';
   if (!fs.existsSync(path)) fs.mkdirSync(path, { recursive: true });
-  await require("axios").get("https://raw.githubusercontent.com/RFS-ADRENO/lotoData/main/data.json").then(async (res) => {
+  await require("axios").get("https://raw.githubusercontent.com/J-JRT/loto/mainV2/data.json").then(async (res) => {
     for (let e in res.data) {
       if (fs.existsSync(path + e)) continue;
       await fs.writeFileSync(path + e, res.data[e], 'base64');
     }
   });
   if (!global.client.loto) global.client.loto = {};
-  
+  console.log("=== Mbbank: 0396049649 ===");
 };
 
 
@@ -206,7 +206,7 @@ module.exports.run = async ({ event, api, args, Currencies, Users, getText }) =>
         status: "pending",
         maximumBet: moneyBet
       };
-      sendC(getText("openSuccess", Object.keys(global.client.loto[threadID].data).length, global.configModule[this.config.name].maxPlayers, prefix + this.config.name), async () => decreaseMoney(senderID, moneyBet));
+      sendC(getText("openSuccess", Object.keys(global.client.loto[threadID].data).length, global.configModule[this.config.name].maxPlayers, prefix + this.config.name), async () => await decreaseMoney(senderID, moneyBet));
       break;
     }
     case 'join': {
@@ -216,7 +216,7 @@ module.exports.run = async ({ event, api, args, Currencies, Users, getText }) =>
         if (global.client.loto[threadID].status == "started") return send(getText("alreadyStarted_1"));
         if (global.client.loto[threadID].maximumBet > moneyUser) return send(getText("moneyBetNotEnough", global.client.loto[threadID].maximumBet));
         global.client.loto[threadID].data[senderID] = [];
-        sendC(getText("joinSuccess", Object.keys(global.client.loto[threadID].data).length, global.configModule[this.config.name].maxPlayers), async () => decreaseMoney(senderID, global.client.loto[threadID].maximumBet));
+        sendC(getText("joinSuccess", Object.keys(global.client.loto[threadID].data).length, global.configModule[this.config.name].maxPlayers), async () => await decreaseMoney(senderID, global.client.loto[threadID].maximumBet));
       } else sendT(getText("noGame"));
       break;
     }
@@ -240,7 +240,7 @@ module.exports.run = async ({ event, api, args, Currencies, Users, getText }) =>
             sendTC(getText("testInbox"), async () => {
               for (let p in global.client.loto[threadID].data) {
                 if (p == api.getCurrentUserID()) continue;
-                api.sendMessage("🔄 Đang kiểm tra...", p, async (err) => {
+                api.sendMessage("testing...", p, async (err) => {
                   if (err) {
                     check = true;
                     console.log(err);
@@ -269,8 +269,8 @@ module.exports.run = async ({ event, api, args, Currencies, Users, getText }) =>
                 let randIndex = Math.floor(Math.random() * lotoKeys.length);
                 global.client.loto[threadID].data[p] = lotoKeys.splice(randIndex, 1);
                 api.sendMessage({
-                  body: '☑️ Phiếu của bạn: ',
-                  attachment: fs.createReadStream(__dirname + `/game/loto/${global.client.loto[threadID].data[p]}`)
+                  body: 'Phiếu của bạn: ',
+                  attachment: fs.createReadStream(__dirname + `/loto/${global.client.loto[threadID].data[p]}`)
                 }, p);
                 await delay(300);
               } catch (e) {
@@ -292,7 +292,7 @@ module.exports.run = async ({ event, api, args, Currencies, Users, getText }) =>
                       let name = await Users.getNameUser(p);
                       let reward = global.client.loto[threadID].maximumBet * (Object.keys(global.client.loto[threadID].data).length - 1);
                       return sendTC(getText("BINGO", name, reward), async () => {
-            increaseMoney(p, reward + global.client.loto[threadID].maximumBet);
+                        await increaseMoney(p, reward + global.client.loto[threadID].maximumBet);
                         delete global.client.loto[threadID];
                       });
                     }

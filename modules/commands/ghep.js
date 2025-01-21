@@ -2,101 +2,98 @@ module.exports.config = {
   name: "ghep",
   version: "1.0.0", 
   hasPermssion: 0,
-  credits: "M-Drasew, HungCho", // Mod xíu by Trankhuong 
-  description: "Tìm người hẹn hò!",
-  commandCategory: "Game", 
-  usages: "", 
-  cooldowns: 10,
-  images: [],
+  credits: "TáoTpk",
+  description: "Ghép đôi",
+  commandCategory: "Tình yêu", 
+  usages: "ghep", 
+  cooldowns: 2
 };
-module.exports.run = async ({ api, event, handleReply, Users, Currencies }) => {
-const { threadID, messageID, senderID } = event;
-let $ = 500;
-    let money = (await Currencies.getData(event.senderID)).money;
-if(money < $) api.sendMessage(`💵 Bạn cần có ${$}$ để ghép đôi!`,threadID,messageID);
-  else {
-  Currencies.setData(event.senderID, options = {money: money - 0})
-	return api.sendMessage(`Phản hồi tin nhắn để chọn giới tính.\n\n[ Nam hoặc Nữ ]`, event.threadID, (error, info) => {
-        global.client.handleReply.push({
-            type: "ghep",
-            name: this.config.name,
-            author: event.senderID,
-            messageID: info.messageID
-        })  
-     })
-   }
+module.exports.circle = async (image) => {
+  const jimp = global.nodemodule["jimp"];
+  image = await jimp.read(image);
+  image.circle();
+  return await image.getBufferAsync("image/png");
 }
-module.exports.handleReply = async ({ api, event, handleReply, Users, Currencies }) => {
-var token = `6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-const axios = global.nodemodule["axios"];
-const fs = global.nodemodule["fs-extra"];
-const tile = Math.floor(Math.random() * 101);
-const random = ["Cầm vàng đừng để vàng rơi. Anh ơi anh rớt người yêu rồi này.","Cần gì quà cáp cao siêu. Đóa hồng, tấm thiệp là yêu rồi mà.","Bao nhiêu cân thính cho vừa. Bao nhiêu cân bả mới lừa được anh.","Bầu trời xanh, làn mây trắng. Anh yêu nắng hay yêu em?","Nhờ có nắng mới thấy cầu vồng. Nhờ có anh mới thấy màu hạnh phúc.","Anh yêu ơi ới ời. Anh đang ở đâu?","Soái ca là của ngôn tình. Còn anh thì chỉ của mình em thôi.","Giữa cuộc đời hàng ngàn cám dỗ.Em chỉ cần bến đỗ anh thôi.","Bồ công anh bay khi có gió. Em chỉ cười vì ở đó có anh.","Ba mươi chưa phải là Tết. Không làm bạn đâu phải là hết, còn có thể làm người yêu mà.","Ai nào cho mượn avatar để em đỡ cô đơn đi.","Nắng đã có mũ, mưa đã có ô, còn em sẽ có ai?", 'Cuộc sống có khó khăn vất vả thì vẫn cứ hạnh phúc thật nhiều nhé. Chúc hai bạn cùng nắm tay nhau đi suốt cuộc đời, mãi hạnh phúc nhé.','Chúc mừng cặp vợ chồng mãi yêu thương gắn bó với nhau. Chúc hai bạn đã tìm được bến đỗ cuộc đời, phải thật hạnh phúc đấy.','Chúc cô dâu chú rể hạnh phúc tràn đầy, mừng gia đình sớm con đàn cháu đống. Cung hỷ, cung hỷ.','Mừng hai bạn đã về một nhà. Chúc gia đình nhỏ trăm niềm hạnh phúc, chúc gia đình lớn luôn gắn kết yêu thương.','Chúc cuộc sống của đôi vợ chồng trẻ thuận buồm xuôi gió, làm đến đâu, giàu đến đó.','Chúc cho cô dâu chú rể luôn gắn kết như keo với sơn, như cá với nước, như trước với sau và luôn thương yêu nhau.','Dẫu đường đời có nhiều gạch đá, may mà cô dâu “vấp” được chú rể hiền, ngày dài tháng rộng triền miên, mong niềm hạnh phúc an nhiên cho đôi vợ chồng trẻ nhé.','Chúc các bạn luôn yêu nhau mãnh liệt, mọi khó khăn chỉ là thử thách nên hai bạn hãy vui sống lạc quan với nhau suốt một đời và hạnh phúc nhé.'];
-    switch(handleReply.type) {
-        case "ghep": {
-          switch(event.body) {
-					case "Nam": {
-						api.unsendMessage(handleReply.messageID);
-						api.sendMessage(`📌 Đang tìm đối tượng hợp với bạn...`,event.threadID);
-            var ThreadInfo = await api.getThreadInfo(event.threadID);
-            var all = ThreadInfo.userInfo
-            let data = [];
-            for (let male of all) {
-                if (male.gender == "MALE") {
-                 if ( male != event.senderID) data.push(male.id)   
-                }
-            }
-          let member = data[Math.floor(Math.random() * data.length)]
-          let n = (await Users.getData(member)).name
-          const url = api.getCurrentUserID(member);
-          let Avatar_boy = (await axios.get(`https://graph.facebook.com/${member}/picture?height=1500&width=1500&access_token=`+token, { responseType: "arraybuffer" } )).data; 
-            fs.writeFileSync( __dirname + `/cache/avt1.png`, Buffer.from(Avatar_boy, "utf-8") );
-          let name = await Users.getNameUser(handleReply.author);
-          let Avatar_author = (await axios.get( `https://graph.facebook.com/${handleReply.author}/picture?width=512&height=512&access_token=`+token, { responseType: "arraybuffer" } )).data;
-            fs.writeFileSync( __dirname + "/cache/avt2.png", Buffer.from(Avatar_author, "utf-8") );
-            let gifLove = (await axios.get( `https://i.ibb.co/wC2JJBb/trai-tim-lap-lanh.gif`, { responseType: "arraybuffer" } )).data;
-           fs.writeFileSync( __dirname + "/cache/giflove.png", Buffer.from(gifLove, "utf-8") );
-           var arraytag = [];
-                arraytag.push({id: handleReply.author, tag: name});
-                arraytag.push({id: member, tag: n});
-           var imglove = []; 
-              imglove.push(fs.createReadStream(__dirname + "/cache/avt1.png"));
-            imglove.push(fs.createReadStream(__dirname + "/cache/giflove.png"));
-              imglove.push(fs.createReadStream(__dirname + "/cache/avt2.png"));
-           var msg = {body: `[ TINDER DATING LOVE ]\n────────────────\n🥰 Ghép đôi thành công!\n💌 Thính: ${random[Math.floor(Math.random() * random.length)]}\n💞 Tỉ lệ hợp nhau: ${tile}%\n❤️ Tên người ấy: `+n+" "+"\n🤍 Tên của bạn:"+" "+name, mentions: arraytag, attachment: imglove}
-        return api.sendMessage(msg, event.threadID, event.messageID);
-          } break;
-          case "Nữ": {
-						api.unsendMessage(handleReply.messageID);
-						api.sendMessage(`📌 Đang tìm đối tượng hợp với bạn...`,event.threadID);
-            var ThreadInfo = await api.getThreadInfo(event.threadID);
-            var all = ThreadInfo.userInfo
-            let data = [];
-            for (let female of all) {
-                if (female.gender == "FEMALE") {
-                 if ( female != event.senderID) data.push(female.id)   
-                }
-            }
-          let member = data[Math.floor(Math.random() * data.length)]
-          let n = (await Users.getData(member)).name
-          let Avatar_girl = (await axios.get(`https://graph.facebook.com/${member}/picture?height=1500&width=1500&access_token=`+token, { responseType: "arraybuffer" } )).data; 
-            fs.writeFileSync( __dirname + `/cache/avt1.png`, Buffer.from(Avatar_girl, "utf-8") );
-          let name = await Users.getNameUser(handleReply.author);
-          let Avatar_author = (await axios.get( `https://graph.facebook.com/${handleReply.author}/picture?width=512&height=512&access_token=`+token, { responseType: "arraybuffer" } )).data;
-            fs.writeFileSync( __dirname + "/cache/avt2.png", Buffer.from(Avatar_author, "utf-8") );
-            let gifLove = (await axios.get( `https://i.ibb.co/wC2JJBb/trai-tim-lap-lanh.gif`, { responseType: "arraybuffer" } )).data; 
-            fs.writeFileSync( __dirname + "/cache/giflove.png", Buffer.from(gifLove, "utf-8") );
-           var arraytag = [];
-                arraytag.push({id: handleReply.author, tag: name});
-                arraytag.push({id: member, tag: n});
-           var imglove = []; 
-              imglove.push(fs.createReadStream(__dirname + "/cache/avt1.png"));
-            imglove.push(fs.createReadStream(__dirname + "/cache/giflove.png"));
-          imglove.push(fs.createReadStream(__dirname + "/cache/avt2.png"));
-           var msg = {body:`[ TINDER DATING LOVE ]\n────────────────\n🥰 Ghép đôi thành công!\n💌 Thính: ${random[Math.floor(Math.random() * random.length)]}\n💞 Tỉ lệ hợp nhau: ${tile}%\n❤️ Tên người ấy: `+n+" "+"\n🤍 Tên của bạn:"+" "+name, mentions: arraytag, attachment: imglove}
-        return api.sendMessage(msg, event.threadID, event.messageID);
-          } break;
-        }
-      }
+module.exports.run = async function({ api, event,Threads, Users }) {
+        const { createReadStream, existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+     const { loadImage, createCanvas, registerFont } = require("canvas");
+  const fs = global.nodemodule["fs-extra"];
+  const axios = global.nodemodule["axios"];
+    const request = require('request');
+  const res = await axios.get(`https://docs-api.jrtxtracy.repl.co/saying/hearing?apikey=JRTvip_2200708248`);
+var love = res.data.data;
+   const pidusage = await global.nodemodule["pidusage"](process.pid);
+	const moment = require("moment-timezone");
+    var gio = moment.tz("Asia/Ho_Chi_Minh").format("D/MM/YYYY || HH:mm:ss");
+    var thu = moment.tz('Asia/Ho_Chi_Minh').format('dddd');
+     if (thu == 'Sunday') thu = '𝗖𝗵𝘂̉ 𝗡𝗵𝗮̣̂𝘁'
+  if (thu == 'Monday') thu = '𝗧𝗵𝘂̛́ 𝗛𝗮𝗶'
+  if (thu == 'Tuesday') thu = '𝗧𝗵𝘂̛́ 𝗕𝗮'
+  if (thu == 'Wednesday') thu = '𝗧𝗵𝘂̛́ 𝗧𝘂̛'
+  if (thu == "Thursday") thu = '𝗧𝗵𝘂̛́ 𝗡𝗮̆𝗺'
+  if (thu == 'Friday') thu = '𝗧𝗵𝘂̛́ 𝗦𝗮́𝘂'
+  if (thu == 'Saturday') thu = '𝗧𝗵𝘂̛́ 𝗕𝗮̉𝘆'
+  let pathImg = __dirname + "/noprefix/mdl.jpg";
+  let pathAvt1 = __dirname + "/cache/Av7.png";
+  let pathAvt2 = __dirname + "/cache/7.png";
+  var id1 = event.senderID;
+        var { participantIDs } =(await Threads.getData(event.threadID)).threadInfo;
+        var tle = Math.floor(Math.random() * 101);
+        var namee = (await Users.getData(event.senderID)).name
+        const botID = api.getCurrentUserID();
+        const listUserID = event.participantIDs.filter(ID => ID != botID && ID != event.senderID);
+        var id = listUserID[Math.floor(Math.random() * listUserID.length)];
+        var name = (await Users.getData(id)).name 
+var background = ["https://i.imgur.com/4qT6XAd.png",
+                 "https://i.postimg.cc/wjJ29HRB/background1.png",
+  "https://i.postimg.cc/zf4Pnshv/background2.png",
+  "https://i.postimg.cc/5tXRQ46D/background3.png"];
+    var rd = background[Math.floor(Math.random() * background.length)];
+  
+        let getAvtmot = (
+    await axios.get( `https://graph.facebook.com/${id1}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,{ responseType: "arraybuffer" }
+    )
+  ).data;
+  fs.writeFileSync(pathAvt1, Buffer.from(getAvtmot, "utf-8"));
+avt1 = await this.circle(pathAvt1);
+        let getAvthai = (await axios.get( `https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" }
+    )
+  ).data;
+  fs.writeFileSync(pathAvt2, Buffer.from(getAvthai, "utf-8"));
+ avt2 = await this.circle(pathAvt2);             
+   if (!fs.existsSync(__dirname +
+        `/tad/UTMFacebookK&TItali.ttf`)) {
+        let getfont = (await axios.get(`https://drive.google.com/u/0/uc?id=1lh3U5emvpL4wJvxW_M8LFORc4rargy1s&export=download`, { responseType: "arraybuffer" })).data;
+        fs.writeFileSync(__dirname + `/tad/UTMFacebookK&TItali.ttf`, Buffer.from(getfont, "utf-8"));
    }
-}
+  let getbackground = (
+    await axios.get(`${rd}`, {
+      responseType: "arraybuffer",
+    })
+  ).data;
+  fs.writeFileSync(pathImg, Buffer.from(getbackground, "utf-8"));
+  
+    let baseImage = await loadImage(pathImg);
+    let baseAvt1 = await loadImage(avt1);
+  let baseAvt2 = await loadImage(avt2);
+    let canvas = createCanvas(baseImage.width, baseImage.height);
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(baseAvt1, 447, 92, 130, 130);
+ctx.drawImage(baseAvt2, 85, 92, 130, 130);
+registerFont(__dirname + `/tad/UTMFacebookK&TItali.ttf`, {
+      family: "UTM"
+    });
+    ctx.textAlign = "start";    
+    ctx.font = "23px UTM";
+    ctx.fillStyle = "#00000";
+    ctx.fillText(`${namee}`, 450, 250);
+  ctx.font = "23px UTM";
+    ctx.fillStyle = "#00000";
+    ctx.fillText(`${name}`, 80, 250);
+    const imageBuffer = canvas.toBuffer();
+    fs.writeFileSync(pathImg, imageBuffer);
+    fs.removeSync(pathAvt1);
+fs.removeSync(pathAvt2);
+        return api.sendMessage({body:`💓=== [ 𝗟𝗼𝘃𝗲 𝗖𝗼𝘂𝗽𝗹𝗲 ] ===💓\n━━━━━━━━━━━━\n😽 𝗚𝗵𝗲́𝗽 Đ𝗼̂𝗶 𝗧𝗵𝗮̀𝗻𝗵 𝗖𝗼̂𝗻𝗴\n[❤️] → 𝗧𝗲̂𝗻 𝗰𝘂̉𝗮 𝗯𝗮̣𝗻: ${namee}\n[🤍] → 𝗧𝗲̂𝗻 𝗰𝘂̉𝗮 𝗻𝗴𝘂̛𝗼̛̀𝗶 𝗮̂́𝘆: ${name}\n[🎀] → 𝗧𝗶̉ 𝗟𝗲̣̂ 𝗛𝗼̛̣𝗽 Đ𝗼̂𝗶 𝗟𝗮̀:${tle}%\n[⏰] → 𝗚𝗵𝗲́𝗽 đ𝗼̂𝗶 𝘃𝗮̀𝗼 𝗹𝘂́𝗰: ${gio} || ${thu}\n━━━━━━━━━━━━\n[💌] → 𝗧𝗵𝗶́𝗻𝗵: ${love}`,attachment: fs.createReadStream(pathImg) }, event.threadID, () => fs.unlinkSync(pathImg));
+} 

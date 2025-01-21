@@ -4,8 +4,7 @@ module.exports.config = {
     hasPermssion: 1,
     credits: "D-Jukie",
     description: "Xoá người bạn cần xoá khỏi nhóm bằng cách tag hoặc reply",
-    commandCategory: "Qtv",
-    images: [],
+    commandCategory: "Hệ thống quản trị viên",
     usages: "[tag/reply/all]",
     cooldowns: 0
 };
@@ -33,7 +32,7 @@ module.exports.run = async function ({
                 uid = event.messageReply.senderID
                 return api.removeUserFromGroup(uid, event.threadID)
             } else {
-                if (!args[0]) return api.sendMessage(`❎ Vui lòng tag hoặc reply người cần kick`, event.threadID, event.messageID)
+                if (!args[0]) return api.sendMessage(`Vui lòng tag hoặc reply người cần kick`, event.threadID, event.messageID)
                 else {
                     if (args[0] == "all") {
                         const listUserID = event.participantIDs.filter(ID => ID != botID && ID != event.senderID);
@@ -47,6 +46,6 @@ module.exports.run = async function ({
             }
         }
     } catch {
-        return api.sendMessage('❎ Lỗi khi kick người dùng', event.threadID, event.messageID);
+        return api.sendMessage('ccc', event.threadID, event.messageID);
     }
 }

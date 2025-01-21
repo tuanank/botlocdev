@@ -1,24 +1,32 @@
-const request = require("request");
-const fs = require("fs")
-const axios = require("axios")
 module.exports.config = {
   name: "tát",
   version: "1.0.0",
   hasPermssion: 0,
-  credits: "Kaneki",
-  description: "tát người bạn tag",
-  commandCategory: "Game",
-  usages: "[tag]",
+  credits: "JRT",
+  description: "Tát người bạn muốn",
+  commandCategory: "Hành động",
+  usages: "tát @tag",
   cooldowns: 5,
+  dependencies: {"request": "","fs": "","axios": ""}
 };
 
-module.exports.run = async({ api, event, Threads, global }) => {
-  var link = [    
-"https://i.imgur.com/01vdqea.gif"
-   ];
-   var mention = Object.keys(event.mentions);
-     let tag = event.mentions[mention].replace("@", "");
-    if (!mention) return api.sendMessage("Vui lòng tag 1 người", threadID, messageID);
-   var callback = () => api.sendMessage({body:`${tag}` + ` 𝗞𝗵𝗼̂𝗻𝗴 𝗧𝗵𝗼𝗮́𝘁 Đ𝘂̛𝗼̛̣𝗰 𝗧𝗮 Đ𝗮̂𝘂 𝗞𝗞𝗞 🎀`,mentions: [{tag: tag,id: Object.keys(event.mentions)[0]}],attachment: fs.createReadStream(__dirname + "/cache/spair.gif")}, event.threadID, () => fs.unlinkSync(__dirname + "/cache/spair.gif"));  
-      return request(encodeURI(link[Math.floor(Math.random() * link.length)])).pipe(fs.createWriteStream(__dirname+"/cache/spair.gif")).on("close",() => callback());
+module.exports.run = async({api,event,args,client,Users,Threads,__GLOBAL,Currencies}) => {
+        const request = require("request");
+        const fs = require("fs");
+        const axios = require("axios");
+                  var mention = Object.keys(event.mentions)[0];
+let tag = event.mentions[mention].replace("@", "");
+        axios.get('https://jrt-api.jrtxtracy.repl.co/slap').then(res => {
+	let ext = res.data.data.substring(res.data.data.lastIndexOf(".") + 1);
+	
+	let callback = function () {
+    api.sendMessage({body: `[⚜️] ➜ Bạn ${tag} à 🥲\n[💓] ➜ Tôi muốn tát cậu vailon ra!!! 😃` , mentions: [{
+          tag: tag,
+          id: Object.keys(event.mentions)[0]
+        }],
+  attachment: fs.createReadStream(__dirname + `/cache/kiss.${ext}`)
+					}, event.threadID, () => fs.unlinkSync(__dirname + `/cache/kiss.${ext}`), event.messageID);
+				};
+				request(res.data.data).pipe(fs.createWriteStream(__dirname + `/cache/kiss.${ext}`)).on("close", callback);
+			})
 }

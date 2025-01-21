@@ -1,17 +1,16 @@
 module.exports.config = {
-  name: "taixiu",
-  version: "6.9.3",
-  hasPermssion: 0,
-  credits: "Yae Miko & Mod by DongDev",
-  description: "Tài xỉu trên hệ thống Bot Zuri đa dạng nhiều kiểu",
-  commandCategory: "Game",
-  usages: "[tài/xỉu/b3gn/b2gn/cs/ct] [số tiền]",
-  cooldowns: 5,
-  images: []
+	name: "taixiu",
+	version: "0.0.1",
+	hasPermssion: 0,
+	credits: "WhoisHakira stolen form lorenBot(MinhHuyDev)",
+	description: "Chơi tài xỉu",
+	commandCategory: "Game",
+    usages: "taixiu [tài/xỉu] [số tiền]",
+    cooldowns: 0
 };
 const axios = require('axios');
 var bdsd = true;
-var tilethang = 2;
+var tilethang = 2.53;
 var tilethangb3dn = 10;
 var tilethangb2dn = 5;
 var timedelay = 2;
@@ -25,12 +24,12 @@ function replace(int){
 }
 function getImage(number){
     switch (number){
-      case 1: return "https://i.imgur.com/cmdORaJ.jpg";
-      case 2: return "https://i.imgur.com/WNFbw4O.jpg";
-      case 3: return "https://i.imgur.com/Xo6xIX2.jpg";
-      case 4: return "https://i.imgur.com/NJJjlRK.jpg";
-      case 5: return "https://i.imgur.com/QLixtBe.jpg";
-      case 6: return "https://i.imgur.com/y8gyJYG.jpg";
+        case 1: return "https://i.imgur.com/3KH0RVi.png";
+        case 2: return "https://i.imgur.com/ammclpx.png";
+        case 3: return "https://i.imgur.com/KETAnfv.png";
+        case 4: return "https://i.imgur.com/9H62lQ0.png";
+        case 5: return "https://i.imgur.com/sDq4Vsj.png";
+        case 6: return "https://i.imgur.com/xxVMZWB.png";
     }
 }
 function getRATE(tong){
@@ -51,20 +50,21 @@ function getRATE(tong){
     return rate
 }
 module.exports.run = async function ({ event, api, Currencies, Users, args }) {
- try{
-    const moment = require("moment-timezone");
+    try{
+    const moment = require("moment-timezone");  
     const format_day = moment.tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY - HH:mm:ss");
     const { increaseMoney , decreaseMoney } = Currencies;
     const { threadID, messageID, senderID } = event;
-    var name = await Users.getNameUser(senderID);
-    var money = (await Currencies.getData(event.senderID)).money;
+    const { sendMessage: HakiraSEND } = api;
+    var name = await Users.getNameUser(senderID)
+    var money = (await Currencies.getData(senderID)).money
     var bet = parseInt((args[1] == "allin" ? money : args[1]));
     var input = args[0];
     var tong = parseInt(args[2])
-    if(!input) return api.sendMessage("❎ Bạn chưa nhập tài/xỉu/b3gn/b3gn/ct/cs", threadID, messageID);
-    if(!bet) return api.sendMessage("❎ Bạn Không Đủ Tiền", threadID, messageID);
-    if(bet < 1000) return api.sendMessage("❎ Bạn cần cược tối thiểu là 1000$", threadID, messageID);
-    if(bet > money) return api.sendMessage("❎ Bạn không đủ tiền để có thể cược", threadID, messageID);
+    if(!input) return HakiraSEND("[⚜️]➜ Bạn chưa nhập tài/xỉu/bộ ba giống nhau/bộ đôi giống nhau/cược tổng/cược số", threadID, messageID);
+    if(!bet) return HakiraSEND("[⚜️]➜ Gì thế bạn trẻ !!!", threadID, messageID);
+    if(bet < 10000) return HakiraSEND("[⚜️]➜ Bạn cần đặt cược tối thiểu 10000$", threadID, messageID);
+    if(bet > money) return HakiraSEND("[⚜️]➜ Bạn không đủ tiền để đặt cược", threadID, messageID);
     if(input == "tài" || input == "Tài" || input == '-t') var choose = 'tài'
     if(input == "xỉu" || input == "Xỉu" || input == '-x') var choose = 'xỉu'
     if(input == 'b3gn' || input == 'bbgn' || input == 'btgn') var choose = 'b3gn'
@@ -72,42 +72,43 @@ module.exports.run = async function ({ event, api, Currencies, Users, args }) {
     if(input == 'cuoctong' || input == 'ct') var choose = 'cuoctong'
     if(input == 'cuocso' || input == 'cs') var choose = 'cuocso'
     var tag = ['tài','xỉu','b3gn','b2gn','cuoctong','cuocso']
-    if(!tag.includes(choose)) return api.sendMessage('❎ Bạn nhập sai lựa chọn, hãy chọn tài/xỉu/b3gn/b3gn/ct/cs', threadID, messageID)
-    if(choose == 'cuoctong' && (tong < 4 || tong > 17)) return api.sendMessage("❎ Tổng cược không hợp lệ", threadID, messageID);
-    if(choose == 'cuocso' && (tong < 1 || tong > 6)) return api.sendMessage("❎ Số bạn nhập không hợp lệ", threadID, messageID);
+    if(!tag.includes(choose)) return HakiraSEND('[⚜️]➜ Sai cú pháp!!', threadID, messageID)
+    if(choose == 'cuoctong' && (tong < 4 || tong > 17)) return HakiraSEND("[⚜️]➜ Tổng cược không hợp lệ ?", threadID, messageID);
+    if(choose == 'cuocso' && (tong < 1 || tong > 6)) return HakiraSEND("[⚜️]➜ Số được chọn không hợp lệ ?", threadID, messageID);
     const number = [], img = [], bodem = 0;
-   api.sendMessage("🔄 Bot đang lắc, vui lòng chờ...", threadID, async (err, info) => {
-            await new Promise(resolve => setTimeout(resolve, 7 * 1000));
-      return api.unsendMessage(info.messageID);
-          }, messageID);
     for(let i = 1; i < 4; i++){
     var n = Math.floor(Math.random() * 6 + 1) 
     number.push(n)
     var img_ = (await axios.get(encodeURI(getImage(n)), { responseType: 'stream' })).data;
     img.push(img_)
-     await new Promise(resolve => setTimeout(resolve, timedelay * 1000))
+    HakiraSEND(`[ 𝗧𝗫 ]➜ 𝗹𝗮̂̀𝗻 đ𝗼̂̉ 𝘅𝘂́𝗰 𝘅𝗮̆́𝗰 𝘁𝗵𝘂̛́ ${i}:\n━━━━━━━━━━━━━━━━━━\n[🎰]➜ 𝗯𝗼𝘁 𝗹𝗮̆́𝗰 𝗿𝗮 đ𝘂̛𝗼̛̣𝗰 𝘀𝗼̂́: ${n}`, threadID, messageID)
+      await new Promise(resolve => setTimeout(resolve, timedelay * 1000))
 }
 var total = number[0] + number[1] + number[2];
 if(choose == 'cuocso'){
     if(number[0] == tong || number[1] == tong || number[2] == tong){
         var ans = `${tong}`
         var result = 'win'
-        var mn = bet * motsogiong
+        var mn = bet * motsogiong 
+        var mne = money + mn
     }
     if(number[1] == tong && number[2] == tong || number[0] == tong && number[2] == tong || number[0] == tong && number[1] == tong){
         var ans = `${tong}`
         var result = 'win'
         var mn = bet * haisogiong
+        var mne = money + mn
     }
     if(number[0] == tong && number[1] == tong && number[2] == tong){
         var ans = `${tong}`
         var result = 'win'
         var mn = bet * basogiong
+        var mne = money + mn
     }
     if(number[0] != tong && number[1] != tong && number[2] != tong){
         var ans = `${tong}`
         var result = 'lose'
         var mn = bet
+        var mne = money - mn
     }   
 }
 if(choose == 'cuoctong'){
@@ -115,10 +116,12 @@ if(choose == 'cuoctong'){
         var ans = "cược tổng"
         var result = 'win'
         var mn = bet * parseInt((getRATE(tong)))
+        var mne = money + mn
     } else {
         var ans = `${total}`
         var result = 'lose'
         var mn = bet
+        var mne = money - mn
     }
 }
 if(choose == 'b3gn' ){
@@ -126,10 +129,12 @@ if(choose == 'b3gn' ){
         var ans = "bộ ba đồng nhất"
         var result = 'win'
         var mn = bet * tilethangb3dn
+        var mne = money + mn
     } else {
         var ans = (total >= 11 && total <= 18 ? "tài" : "xỉu") 
         var result = 'lose'
         var mn = bet
+        var mne = money - mn
     }
 }
 if(choose == 'b2gn'){
@@ -137,10 +142,12 @@ if(choose == 'b2gn'){
         var ans = "bộ hai đồng nhất"
         var result = 'win'
         var mn = bet * tilethangb2dn
+        var mne = money + mn
     } else {
         var ans = (total >= 11 && total <= 18 ? "tài" : "xỉu") 
         var result = 'lose'
         var mn = bet
+        var mne = money - mn
     }
 }
 if(choose == 'tài' || choose == 'xỉu') {
@@ -152,22 +159,62 @@ var ans = (total >= 11 && total <= 18 ? "tài" : "xỉu")
 if(number[0] == number[1] && number[1] == number[2]) {
     var result = 'lose'
     var mn = bet
+    var mne = money - mn
 }
 if(ans == choose) {
     var result = 'win'
     var mn = bet * tilethang
+    var mne = mn + money
 } else {
     var result = 'lose'
     var mn = bet
-   }
+    var mne = money - mn
 }
-       if(result =='lose'){
-    Currencies.decreaseMoney(senderID, mn)
+}
+if(result =='lose'){
+    decreaseMoney(senderID, mn)
 } else if(result == 'win'){
-    Currencies.increaseMoney(senderID, mn)
+    increaseMoney(senderID, mn)
 }
-    api.sendMessage({body: `[ Kết Quả Tài Xỉu ]\n──────────────────\n⏰ Thời gian: ${format_day}\n👤 Người chơi ${name} đã chọn ${choose} với số tiền ${replace(bet)}$\n🎲 Kết quả: ${number[0]} | ${number[1]} | ${number[2]} - ${total} (${ans})\n🤑 Tổng kết: ${(result == 'win' ? 'Thắng' : 'Thua')} ${(result == 'win' ? '+' : '-')} ${replace(Math.floor(mn))}$\n🛎️ Status: ${(result == 'win' ? 'Đã Trả Thưởng' : 'Đã Trừ Tiền')}`, attachment: img }, threadID, messageID);
+var msg =   `=== [ 𝗞𝗘̂́𝗧 𝗤𝗨𝗔̉ 𝗧𝗔̀𝗜 𝗫𝗜̉𝗨 ] ===\n━━━━━━━━━━━━━━━━━━` 
+            + '\n' + 
+            `⏰ 𝗩𝗮̀𝗼 𝗹𝘂́𝗰: ${format_day}`
+            + '\n' +
+            `👤 𝗡𝗴𝘂̛𝗼̛̀𝗶 𝗖𝗵𝗼̛𝗶: ${name}`
+            + '\n' +
+            `✔️ 𝗟𝘂̛̣𝗮 𝗰𝗵𝗼̣𝗻: ${choose}`
+            + '\n' +
+            `⚙️ 𝗞𝗲̂́𝘁 𝗾𝘂𝗮̉: ${ans}`
+            + '\n' +
+            `🎲 𝗫𝘂́𝗰 𝘅𝗮̆́𝗰 𝟭: ${number[0]}`
+            + '\n' + 
+            `💐 𝗫𝘂́𝗰 𝘅𝗮̆́𝗰 𝟮: ${number[1]}`
+            + '\n' +
+            `💝 𝗫𝘂́𝗰 𝘅𝗮̆́𝗰 𝟯: ${number[2]}`
+            + '\n' +
+            `🖇️ 𝗧𝗼̂̉𝗻𝗴 𝗯𝗮 𝘅𝘂́𝗰 𝘅𝗮̆́𝗰: ${total}`
+            + '\n━━━━━━━━━━━━━━━━━━\n' +
+            `😻 𝗞𝗲̂́𝘁 𝗾𝘂𝗮̉: ${(result == 'win' ? 'Thắng' : 'Thua')}`
+            + '\n' +
+            `💵 𝗧𝗶𝗲̂̀𝗻 𝗰𝘂̛𝗼̛̣𝗰: ${replace(bet)}`
+            + '\n' +
+            `💶 𝗧𝗶𝗲̂̀𝗻 ${(result == '𝘄𝗶𝗻' ? '𝗧𝗵𝗮̆́𝗻𝗴' : '𝗧𝗵𝘂𝗮')}: ${replace(Math.floor(mn))}$`
+            + '\n' +
+            `🕵️ 𝗧𝗿𝗮̣𝗻𝗴 𝗧𝗵𝗮́𝗶: ${(result == 'win' ? 'Đã Trả Thưởng' : 'Đã Trừ Tiền')}`
+            + '\n' +
+            `💸 𝗦𝗼̂́ 𝗧𝗶𝗲̂̀𝗻 𝗛𝗶𝗲̣̂𝗻 𝗧𝗮̣𝗶: ${replace(mne)}$`
+            + '\n━━━━━━━━━━━━━━━━━━' +
+            `\n💮 𝗕𝗮̣𝗻 𝗰𝗵𝗲𝗰𝗸 𝘀𝗽𝗮𝗺 𝗯𝗼𝘁 𝗰𝗵𝘂𝘆𝗲̂̉𝗻 𝘁𝗶𝗲̂̀𝗻 𝗾𝘂𝗮 đ𝗼́`
+            HakiraSEND({body:msg,attachment: img}, threadID, messageID)
+            if(bdsd == true) {
+          var msg =  `=== [ 𝗠𝗜𝗥𝗔𝗜 𝗣𝗔𝗬𝗠𝗢𝗡𝗘𝗬 ] ===
+━━━━━━━━━━━━━━━━━━
+\n[⏰] 𝗩𝗮̀𝗼 𝗻𝗴𝗮̀𝘆: ${format_day}\n[✍️] 𝗧𝗵𝗼̂𝗻𝗴 𝗯𝗮́𝗼 ${(result == 'win') ? 'nhận tiền' : 'trừ tiền'} 𝘁𝘂̛̀ 𝗱𝗶̣𝗰𝗵 𝘃𝘂̣ 𝗴𝗮𝗺𝗲 𝘁𝗮̀𝗶 𝘅𝗶̉𝘂\n[💸] 𝗦𝗼̂́ 𝘁𝗶𝗲̂̀𝗻: ${replace(mn)}\n[💵] 𝗦𝗼̂́ 𝗱𝘂̛ 𝗸𝗵𝗮̉ 𝗱𝘂̣𝗻𝗴: ${replace(mne)}$\n[💝] 𝗖𝗮̉𝗺 𝗼̛𝗻 đ𝗮̃ 𝘁𝗶𝗻 𝗱𝘂̀𝗻𝗴 𝗱𝗶̣𝗰𝗵 𝘃𝘂̣ 𝗰𝘂̉𝗮 𝗠𝗶𝗿𝗮𝗶𝗣𝗮𝘆`
+            HakiraSEND({
+                body: msg,
+               // attachment: img
+            }, senderID)
+        }
 } catch(e){
-    console.log(e);
-  }
-}
+    console.log(e)
+}}
